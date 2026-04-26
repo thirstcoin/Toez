@@ -551,6 +551,18 @@ body::before {
   white-space: nowrap;
 }
 
+.phase-badge-completed {
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(103, 255, 179, 0.12);
+  border: 1px solid rgba(103, 255, 179, 0.35);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 950;
+  white-space: nowrap;
+  box-shadow: 0 0 12px rgba(103, 255, 179, 0.1);
+}
+
 .phase-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -569,6 +581,11 @@ body::before {
 .phase-list span::before {
   content: "✦ ";
   color: var(--pink);
+}
+
+.phase-list .done::before {
+  content: "✔ ";
+  color: var(--green);
 }
 
 /* ORIGIN */
@@ -1024,14 +1041,14 @@ footer {
           <div class="phase-num">01</div>
           <h3>Phase 1 — First Steps</h3>
         </div>
-        <div class="phase-badge">Launched</div>
+        <div class="phase-badge-completed">Completed</div>
       </div>
       <div class="phase-list">
-        <span>Token deployed</span>
-        <span>Liquidity locked in</span>
-        <span>DEX listings live</span>
-        <span>Early holders stepped in</span>
-        <span>Dev showing up daily</span>
+        <span class="done">Token deployed</span>
+        <span class="done">Liquidity locked in</span>
+        <span class="done">DEX listings live</span>
+        <span class="done">Early holders stepped in</span>
+        <span class="done">Dev showing up daily</span>
       </div>
     </article>
 
