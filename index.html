@@ -97,7 +97,6 @@ body::before {
 }
 
 /* NAV */
-
 .nav {
   position: fixed;
   top: 14px;
@@ -184,7 +183,6 @@ body::before {
 }
 
 /* HERO */
-
 .hero {
   min-height: 100svh;
   position: relative;
@@ -198,7 +196,6 @@ body::before {
   position: absolute;
   inset: 0;
   background: url("assets/hero.jpg") center/cover no-repeat;
-  /* Increased opacity to make the moon pop */
   opacity: 0.85; 
   transform: scale(1.04);
   filter: saturate(1.1) contrast(1.1);
@@ -210,7 +207,6 @@ body::before {
   position: absolute;
   inset: 0;
   z-index: 2;
-  /* Thinner gradient so background details remain visible */
   background:
     linear-gradient(to bottom, rgba(5,3,10,0.1), rgba(5,3,10,0.4) 70%, var(--bg)),
     radial-gradient(circle at center, transparent 0%, rgba(5,3,10,0.5) 80%);
@@ -357,7 +353,6 @@ body::before {
 }
 
 /* TICKER */
-
 .ticker-wrap {
   border-block: 1px solid rgba(255,255,255,0.11);
   background: rgba(255,255,255,0.045);
@@ -394,7 +389,6 @@ body::before {
 }
 
 /* SECTIONS */
-
 .section {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
@@ -430,7 +424,6 @@ body::before {
 }
 
 /* PROOF CARDS */
-
 .proof-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -487,7 +480,6 @@ body::before {
 }
 
 /* ROADMAP */
-
 .roadmap {
   display: grid;
   gap: 18px;
@@ -589,7 +581,6 @@ body::before {
 }
 
 /* ORIGIN */
-
 .origin {
   position: relative;
   min-height: 84svh;
@@ -652,7 +643,6 @@ body::before {
 }
 
 /* GALLERY */
-
 .gallery-grid {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -719,7 +709,6 @@ body::before {
 }
 
 /* COMMUNITY */
-
 .community {
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
@@ -759,7 +748,6 @@ body::before {
 }
 
 /* CTA */
-
 .final-cta {
   text-align: center;
   padding: 96px 18px 70px;
@@ -802,7 +790,6 @@ footer {
 }
 
 /* REVEALS */
-
 .reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -815,7 +802,6 @@ footer {
 }
 
 /* MOBILE */
-
 @media (max-width: 860px) {
   .nav {
     border-radius: 24px;
