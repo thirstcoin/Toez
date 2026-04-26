@@ -443,7 +443,8 @@ body::before {
 
 .proof-card::before,
 .phase-card::before,
-.gallery-card::before {
+.gallery-card::before,
+.eats-card::before {
   content: "";
   position: absolute;
   inset: -1px;
@@ -455,7 +456,8 @@ body::before {
 
 .proof-card:hover::before,
 .phase-card:hover::before,
-.gallery-card:hover::before {
+.gallery-card:hover::before,
+.eats-card:hover::before {
   opacity: 1;
 }
 
@@ -727,6 +729,50 @@ body::before {
   gap: 18px;
 }
 
+/* TOEZ EATS */
+.eats-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: clamp(20px, 5vw, 60px);
+  backdrop-filter: blur(20px);
+}
+
+.eats-card {
+  position: relative;
+  padding: 22px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.eats-card.active {
+  border-color: var(--pink);
+  background: rgba(255, 79, 216, 0.1);
+  box-shadow: 0 0 20px rgba(255, 79, 216, 0.2);
+}
+
+.menu-board {
+  background: rgba(0,0,0,0.4);
+  border: 2px dashed var(--border);
+  border-radius: 30px;
+  padding: 30px;
+  position: relative;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 15px;
+}
+
 /* COMMUNITY */
 .community {
   display: grid;
@@ -832,7 +878,8 @@ footer {
 
   .hero-inner,
   .community,
-  .gallery-grid {
+  .gallery-grid,
+  .eats-container {
     grid-template-columns: 1fr;
   }
 
@@ -934,6 +981,7 @@ footer {
     <a href="#roadmap">Roadmap</a>
     <a href="#origin">Origin</a>
     <a href="#wild">Gallery</a>
+    <a href="#toez-eats">Menu</a>
     <a class="live-pill" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">
       <span class="live-dot"></span>
       LIVE
@@ -1209,6 +1257,89 @@ footer {
   </div>
 </section>
 
+<section class="section" id="toez-eats">
+  <div class="section-head reveal">
+    <div class="eyebrow">Now Serving</div>
+    <h2><span class="gradient-text">TOEZ EATS</span></h2>
+    <p class="lead">
+      The official food truck of the Solana trenches. Giving flowers to the projects that keep the ecosystem moving. 
+    </p>
+  </div>
+
+  <div class="eats-container reveal">
+    
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <h3 style="text-transform: uppercase; letter-spacing: 0.1em; color: var(--pink); font-size: 0.9rem;">Step 1: Choose Your Degen Size</h3>
+      
+      <div class="eats-card active" onclick="selectDegenSize(this)">
+        <b style="font-size: 1.1rem; display: block; margin-bottom: 5px;">THE TOE-SUCKER</b>
+        <p style="font-size: 0.85rem; margin: 0; color: var(--muted);">Small/Appetizer. Just testing the waters. We love the spirit.</p>
+      </div>
+      
+      <div class="eats-card" onclick="selectDegenSize(this)">
+        <b style="font-size: 1.1rem; display: block; margin-bottom: 5px;">THE PLANTED</b>
+        <p style="font-size: 0.85rem; margin: 0; color: var(--muted);">Medium/Meal. You’ve seen some things. You’re here for the vibes and the floor.</p>
+      </div>
+      
+      <div class="eats-card" onclick="selectDegenSize(this)">
+        <b style="font-size: 1.1rem; display: block; margin-bottom: 5px;">TEN TOEZ DOWN</b>
+        <p style="font-size: 0.85rem; margin: 0; color: var(--muted);">Large/Feast. Absolute Legend. Total conviction. Diamond handed.</p>
+      </div>
+    </div>
+
+    <div class="menu-board">
+      <div style="position: absolute; top: -15px; right: 20px; background: var(--pink); color: white; padding: 5px 15px; border-radius: 10px; font-weight: 950; font-size: 0.75rem; letter-spacing: 0.05em;">OPEN 24/7</div>
+      
+      <h3 style="text-align: center; font-family: monospace; font-size: 2rem; margin: 0 0 30px; letter-spacing: 0.2em;">MENU</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">PHAT</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">Thick liquidity and community-first weight. A heavy-hitting ecosystem staple.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">REBATE</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">The rewards that keep on giving. Freshly prepared for the savvy degen.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">GREEN CANDLE MAN</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">A sugary blast of pure upward momentum. The chart's favorite snack.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">NXT / HODI</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">The OG conviction pairing. Smoked daily for those who never sell.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div style="margin-top: 10px;">
+            <span style="color: var(--pink); font-weight: 950; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em;">Seasonal Dessert</span>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-top: 5px;">
+              <div>
+                <b style="color: var(--gold); font-size: 1.1rem; text-transform: uppercase;">FYPM</b>
+                <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">"Fuck You Pay Me." The sweetest exit liquidity you will ever taste.</p>
+              </div>
+              <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$FREE</span>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section">
   <div class="community">
     <div class="community-img reveal">
@@ -1277,7 +1408,7 @@ revealEls.forEach((el, index) => {
   revealObserver.observe(el);
 });
 
-const glowCards = document.querySelectorAll(".proof-card, .phase-card, .gallery-card");
+const glowCards = document.querySelectorAll(".proof-card, .phase-card, .gallery-card, .eats-card");
 
 glowCards.forEach((card) => {
   card.addEventListener("pointermove", (e) => {
@@ -1288,6 +1419,11 @@ glowCards.forEach((card) => {
     card.style.setProperty("--y", `${y}%`);
   });
 });
+
+function selectDegenSize(element) {
+    document.querySelectorAll('.eats-card').forEach(card => card.classList.remove('active'));
+    element.classList.add('active');
+}
 
 const originBg = document.querySelector(".origin-bg");
 const heroBg = document.querySelector(".hero-bg");
