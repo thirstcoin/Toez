@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>$TOEZ — Ten Toez Down</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#05030a;
+  --text:#ffffff;
+  --muted:rgba(255,255,255,0.7);
+  --pink:#ff4fd8;
+  --purple:#7c5cff;
+  --cyan:#19f7ff;
+  --border:rgba(255,255,255,0.12);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:Inter, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* NAV */
+.nav{
+  position:fixed;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:95%;
+  max-width:1100px;
+  padding:10px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-radius:999px;
+  backdrop-filter:blur(12px);
+  background:rgba(0,0,0,0.6);
+  border:1px solid var(--border);
+  z-index:100;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+}
+
+.brand img{
+  width:36px;
+  border-radius:50%;
+  box-shadow:0 0 12px var(--pink);
+}
+
+.nav a{
+  color:var(--muted);
+  text-decoration:none;
+  margin-left:14px;
+  font-size:14px;
+}
+.nav a:hover{color:#fff}
+
+/* HERO */
+.hero{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+}
+
+.hero-bg{
+  position:absolute;
+  inset:0;
+  background:url("./assets/hero.jpg") center/cover no-repeat;
+  filter:brightness(0.6);
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, transparent, #05030a 85%);
+}
+
+.hero-content{
+  position:relative;
+  z-index:2;
+}
+
+.hero h1{
+  font-size:clamp(3rem,10vw,6rem);
+  line-height:0.9;
+}
+
+.gradient{
+  background:linear-gradient(90deg,#fff,var(--pink),var(--cyan));
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.hero p{
+  margin-top:12px;
+  color:var(--muted);
+}
+
+.btn{
+  margin-top:20px;
+  padding:14px 24px;
+  border-radius:14px;
+  border:none;
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 0 18px rgba(255,79,216,0.4);
+}
+
+/* SECTION */
+.section{
+  max-width:1100px;
+  margin:auto;
+  padding:80px 20px;
+}
+
+.section h2{
+  text-align:center;
+  font-size:clamp(2rem,5vw,3rem);
+}
+
+.section p{
+  text-align:center;
+  color:var(--muted);
+  margin-top:10px;
+}
+
+/* ORIGIN */
+.origin{
+  position:relative;
+  padding:120px 20px;
+  text-align:center;
+}
+
+.origin-bg{
+  position:absolute;
+  inset:0;
+  background:url("./assets/origin.jpg") center/cover no-repeat;
+  filter:brightness(0.35);
+}
+
+.origin-content{
+  position:relative;
+  max-width:700px;
+  margin:auto;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:30px;
+}
+
+.card{
+  position:relative;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:0.3s;
+}
+
+.card:hover img{
+  transform:scale(1.05);
+}
+
+.caption{
+  position:absolute;
+  bottom:10px;
+  left:12px;
+  font-weight:700;
+  text-shadow:0 0 8px rgba(0,0,0,0.7);
+}
+
+/* COMMUNITY */
+.community{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  align-items:center;
+}
+
+.community img{
+  width:100%;
+  border-radius:20px;
+  box-shadow:0 0 30px rgba(255,79,216,0.2);
+}
+
+/* REVEAL ANIMATION */
+.reveal{
+  opacity:0;
+  transform:translateY(30px);
+  transition:all 0.7s ease;
+}
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* MOBILE */
+@media(max-width:800px){
+  .grid,.community{
+    grid-template-columns:1fr;
+  }
+  .hero h1{
+    font-size:clamp(3rem,14vw,5rem);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="brand">
+    <img src="./assets/logo.png">
+    $TOEZ
+  </div>
+  <div>
+    <a href="#origin">Origin</a>
+    <a href="#journey">Journey</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content reveal">
+    <h1>
+      <span class="gradient">TEN</span><br>
+      <span class="gradient">TOEZ</span><br>
+      <span class="gradient">DOWN</span>
+    </h1>
+    <p>Born in a group chat. Built for the trenches.</p>
+    <button class="btn">Buy $TOEZ</button>
+  </div>
+</section>
+
+<!-- ORIGIN -->
+<section class="origin" id="origin">
+  <div class="origin-bg"></div>
+  <div class="origin-content reveal">
+    <h2 class="gradient">THE FIRST STEP</h2>
+    <p>
+      It didn’t start with a roadmap.<br>
+      It didn’t start with utility.<br><br>
+      It started with a pedicure… and a group chat.<br><br>
+      One pic got sent.<br>
+      The chat went off.<br>
+      Memes started flying.<br><br>
+      <b>$TOEZ was born.</b>
+    </p>
+  </div>
+</section>
+
+<!-- JOURNEY -->
+<section class="section" id="journey">
+  <h2 class="gradient reveal">The Movement</h2>
+  <p class="reveal">From first step to everywhere.</p>
+
+  <div class="grid">
+    <div class="card reveal">
+      <img src="./assets/lambo.jpg">
+      <div class="caption">From Memes To Money</div>
+    </div>
+
+    <div class="card reveal">
+      <img src="./assets/trail.jpg">
+      <div class="caption">The Path</div>
+    </div>
+
+    <div class="card reveal">
+      <img src="./assets/selfie.jpg">
+      <div class="caption">Community Moments</div>
+    </div>
+
+    <div class="card reveal">
+      <img src="./assets/trenches.jpg">
+      <div class="caption">Ten Toez Down</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section class="section">
+  <div class="community">
+    <img src="./assets/character.jpg" class="reveal">
+
+    <div class="reveal">
+      <h2 class="gradient">The Real Utility</h2>
+      <p>
+        No fake promises. No forced utility.<br><br>
+        Just a dev that shows up, a community that keeps the memes alive,
+        and a project built on presence, personality, and staying ten toez down.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+const els = document.querySelectorAll(".reveal");
+
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add("visible");
+    }
+  });
+});
+
+els.forEach(el=>observer.observe(el));
+</script>
+
+</body>
+</html>
