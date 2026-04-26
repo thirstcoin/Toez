@@ -198,23 +198,27 @@ body::before {
   position: absolute;
   inset: 0;
   background: url("assets/hero.jpg") center/cover no-repeat;
-  opacity: 0.58;
+  /* Increased opacity to make the moon pop */
+  opacity: 0.85; 
   transform: scale(1.04);
-  filter: saturate(1.08) contrast(1.06);
+  filter: saturate(1.1) contrast(1.1);
+  z-index: 1;
 }
 
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 2;
+  /* Thinner gradient so background details remain visible */
   background:
-    linear-gradient(to bottom, rgba(5,3,10,0.25), rgba(5,3,10,0.82) 72%, var(--bg)),
-    radial-gradient(circle at center, transparent 0%, rgba(5,3,10,0.72) 76%);
+    linear-gradient(to bottom, rgba(5,3,10,0.1), rgba(5,3,10,0.4) 70%, var(--bg)),
+    radial-gradient(circle at center, transparent 0%, rgba(5,3,10,0.5) 80%);
 }
 
 .hero-inner {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   width: min(1120px, 100%);
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
@@ -261,15 +265,42 @@ body::before {
   line-height: 1.65;
 }
 
-.hero-sub strong {
-  color: white;
+.hero-status-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.status-tag {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status-tag::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
 }
 
 .hero-actions {
   display: flex;
   gap: 13px;
   flex-wrap: wrap;
-  margin-top: 26px;
+  margin-top: 30px;
 }
 
 .btn {
@@ -310,43 +341,19 @@ body::before {
 }
 
 .hero-card {
-  padding: 18px;
+  padding: 14px;
   border: 1px solid var(--border);
   border-radius: 30px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04));
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
   box-shadow: var(--shadow);
 }
 
 .hero-card img {
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 24px;
+  border-radius: 20px;
   object-fit: cover;
-}
-
-.hero-card-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.mini-stat {
-  padding: 13px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.11);
-  background: rgba(0,0,0,0.2);
-}
-
-.mini-stat b {
-  display: block;
-  font-size: 1.05rem;
-}
-
-.mini-stat span {
-  color: var(--muted);
-  font-size: 0.82rem;
 }
 
 /* TICKER */
@@ -926,38 +933,23 @@ footer {
       </h1>
 
       <p class="hero-sub">
-        A Solana meme coin with a soft side and hard conviction.
-        Bonded, DEX paid, dev active, and powered by a community that keeps showing up.
+        A Solana meme coin with a soft side and hard conviction. Powered by a community that keeps showing up.
       </p>
+
+      <div class="hero-status-bar">
+        <div class="status-tag">Bonded</div>
+        <div class="status-tag">DEX Paid</div>
+        <div class="status-tag">Dev Active</div>
+      </div>
 
       <div class="hero-actions">
         <a class="btn btn-primary" href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Buy $TOEZ</a>
         <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">View Chart</a>
-        <a class="btn btn-secondary" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Join Telegram</a>
       </div>
     </div>
 
     <div class="hero-card reveal">
-      <img src="assets/character.jpg" alt="$TOEZ token icon" />
-
-      <div class="hero-card-row">
-        <div class="mini-stat">
-          <b>Bonded</b>
-          <span>Launched and planted.</span>
-        </div>
-        <div class="mini-stat">
-          <b>DEX Paid</b>
-          <span>Chart visibility live.</span>
-        </div>
-        <div class="mini-stat">
-          <b>Spaces</b>
-          <span>Dev showing up.</span>
-        </div>
-        <div class="mini-stat">
-          <b>TikTok</b>
-          <span>Content in motion.</span>
-        </div>
-      </div>
+      <img src="assets/character.jpg" alt="$TOEZ Character Art" />
     </div>
   </div>
 </header>
