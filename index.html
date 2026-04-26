@@ -1,276 +1,1276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>$TOEZ — Ten Toez Down</title>
 
 <style>
-:root{
---bg:#05030a;
---text:#fff;
---muted:rgba(255,255,255,.65);
---pink:#ff4fd8;
---purple:#7c5cff;
---cyan:#19f7ff;
+:root {
+  --bg: #05030a;
+  --panel: rgba(255, 255, 255, 0.065);
+  --panel-strong: rgba(255, 255, 255, 0.105);
+  --text: #fff7ff;
+  --muted: rgba(255, 247, 255, 0.72);
+  --pink: #ff4fd8;
+  --rose: #ff8edc;
+  --purple: #7c5cff;
+  --cyan: #19f7ff;
+  --gold: #ffd56a;
+  --green: #67ffb3;
+  --border: rgba(255, 255, 255, 0.14);
+  --shadow: 0 24px 80px rgba(255, 79, 216, 0.18);
 }
 
-*{box-sizing:border-box}
-body{
-margin:0;
-font-family:Inter,system-ui;
-background:radial-gradient(circle at 20% 20%,rgba(255,79,216,.15),transparent),var(--bg);
-color:var(--text);
-overflow-x:hidden;
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 79, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 78% 15%, rgba(25, 247, 255, 0.13), transparent 28%),
+    radial-gradient(circle at 50% 85%, rgba(124, 92, 255, 0.16), transparent 34%),
+    var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.26;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+}
+
+.page-glow {
+  position: fixed;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.36;
+  pointer-events: none;
+  z-index: -1;
+  animation: floatGlow 12s ease-in-out infinite alternate;
+}
+
+.glow-one {
+  background: var(--pink);
+  left: -100px;
+  top: 160px;
+}
+
+.glow-two {
+  background: var(--cyan);
+  right: -120px;
+  bottom: 120px;
+  animation-delay: -4s;
+}
+
+@keyframes floatGlow {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(45px, -35px, 0) scale(1.15); }
 }
 
 /* NAV */
-.nav{
-position:fixed;
-top:12px;
-left:50%;
-transform:translateX(-50%);
-width:95%;
-max-width:1100px;
-display:flex;
-justify-content:space-between;
-padding:12px 16px;
-border-radius:999px;
-background:rgba(0,0,0,.5);
-backdrop-filter:blur(12px);
-z-index:50;
+
+.nav {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1120px, calc(100% - 24px));
+  z-index: 50;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(9, 5, 18, 0.68);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 14px 50px rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.nav a{color:var(--muted);margin:0 8px;text-decoration:none}
-.nav a:hover{color:#fff}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.brand img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 24px rgba(255, 79, 216, 0.7);
+  animation: coinPulse 3s ease-in-out infinite;
+}
+
+@keyframes coinPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 22px rgba(255,79,216,.55); }
+  50% { transform: scale(1.05); box-shadow: 0 0 34px rgba(25,247,255,.45); }
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nav-links a {
+  padding: 10px 13px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  color: var(--muted);
+  transition: 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: white;
+  background: rgba(255,255,255,0.08);
+}
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(255, 79, 216, 0.13);
+  border: 1px solid rgba(255, 79, 216, 0.28);
+  color: white !important;
+  font-weight: 850;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 18px var(--green);
+  animation: blink 1.3s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
 
 /* HERO */
-.hero{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-position:relative;
+
+.hero {
+  min-height: 100svh;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 120px 18px 70px;
+  overflow: hidden;
 }
 
-.hero-bg{
-position:absolute;
-inset:0;
-background:url('./assets/hero.jpg') center/cover no-repeat;
-opacity:.35;
-transform:scale(1.05);
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: url("./assets/hero.jpg") center/cover no-repeat;
+  opacity: 0.58;
+  transform: scale(1.04);
+  filter: saturate(1.08) contrast(1.06);
 }
 
-.hero h1{
-font-size:clamp(3rem,8vw,6rem);
-margin:0;
-background:linear-gradient(90deg,#fff,var(--pink),var(--cyan));
--webkit-background-clip:text;
-color:transparent;
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(5,3,10,0.25), rgba(5,3,10,0.82) 72%, var(--bg)),
+    radial-gradient(circle at center, transparent 0%, rgba(5,3,10,0.72) 76%);
 }
 
-.btn{
-padding:14px 20px;
-border-radius:12px;
-display:inline-block;
-margin:6px;
-font-weight:700;
-text-decoration:none;
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 38px;
+  align-items: center;
 }
 
-.btn-primary{
-background:linear-gradient(135deg,var(--pink),var(--purple));
-color:#fff;
+.kicker {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 142, 220, 0.35);
+  background: rgba(255, 142, 220, 0.1);
+  color: #ffd9f7;
+  font-size: 0.85rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.btn-secondary{
-border:1px solid rgba(255,255,255,.2);
-color:#fff;
+.hero h1 {
+  margin: 20px 0 14px;
+  font-size: clamp(3.2rem, 9vw, 7.6rem);
+  line-height: 0.88;
+  letter-spacing: -0.075em;
+  text-transform: uppercase;
+  text-shadow: 0 0 34px rgba(255, 79, 216, 0.34);
 }
 
-/* CA BOX */
-.ca-box{
-margin-top:20px;
-padding:10px;
-border-radius:12px;
-background:rgba(255,255,255,.05);
-display:inline-flex;
-gap:10px;
-align-items:center;
-font-size:12px;
+.gradient-text {
+  background: linear-gradient(90deg, #fff, #ff8edc 35%, #19f7ff 72%, #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.copy-btn{
-background:var(--pink);
-border:none;
-padding:6px 10px;
-border-radius:8px;
-cursor:pointer;
+.hero-sub {
+  max-width: 680px;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2vw, 1.32rem);
+  line-height: 1.65;
 }
 
-/* SECTION */
-.section{
-padding:80px 20px;
-max-width:1100px;
-margin:auto;
+.hero-sub strong {
+  color: white;
 }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:16px;
+.hero-actions {
+  display: flex;
+  gap: 13px;
+  flex-wrap: wrap;
+  margin-top: 26px;
 }
 
-/* CARD */
-.card{
-background:rgba(255,255,255,.05);
-padding:20px;
-border-radius:16px;
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px 19px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  font-weight: 950;
+  transition: 0.25s ease;
+  overflow: hidden;
 }
 
-/* STICKY BUY */
-.sticky{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:#000;
-padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-z-index:100;
+.btn-primary {
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  color: white;
+  box-shadow: 0 0 24px rgba(255, 79, 216, 0.38);
+  animation: softPulse 2.6s ease-in-out infinite;
 }
 
-.sticky a{
-background:var(--pink);
-padding:10px 16px;
-border-radius:10px;
-color:#fff;
-text-decoration:none;
+.btn-secondary {
+  background: rgba(255,255,255,0.075);
+  color: white;
+  backdrop-filter: blur(12px);
 }
 
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(20px);transition:.6s}
-.reveal.show{opacity:1;transform:none}
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(255, 79, 216, 0.24);
+}
+
+@keyframes softPulse {
+  0%, 100% { box-shadow: 0 0 22px rgba(255, 79, 216, 0.32); }
+  50% { box-shadow: 0 0 36px rgba(25, 247, 255, 0.28); }
+}
+
+.hero-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04));
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+}
+
+.hero-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  object-fit: cover;
+}
+
+.hero-card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.mini-stat {
+  padding: 13px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.11);
+  background: rgba(0,0,0,0.2);
+}
+
+.mini-stat b {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.mini-stat span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* TICKER */
+
+.ticker-wrap {
+  border-block: 1px solid rgba(255,255,255,0.11);
+  background: rgba(255,255,255,0.045);
+  overflow: hidden;
+  transform: rotate(-1deg);
+  margin-top: -18px;
+  position: relative;
+  z-index: 4;
+}
+
+.ticker {
+  display: flex;
+  width: max-content;
+  animation: tickerMove 28s linear infinite;
+}
+
+.ticker span {
+  padding: 15px 28px;
+  white-space: nowrap;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ticker i {
+  color: var(--pink);
+  font-style: normal;
+  text-shadow: 0 0 14px rgba(255,79,216,0.65);
+}
+
+@keyframes tickerMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* SECTIONS */
+
+.section {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 92px 0;
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.eyebrow {
+  color: var(--rose);
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 0.78rem;
+}
+
+.section h2 {
+  font-size: clamp(2.35rem, 6vw, 4.7rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  margin: 10px 0 12px;
+}
+
+.section p.lead {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 1.06rem;
+  line-height: 1.7;
+}
+
+/* PROOF CARDS */
+
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.proof-card {
+  position: relative;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+  min-height: 150px;
+  overflow: hidden;
+  transition: 0.25s ease;
+}
+
+.proof-card::before,
+.phase-card::before,
+.gallery-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  opacity: 0;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,79,216,0.28), transparent 32%);
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.proof-card:hover::before,
+.phase-card:hover::before,
+.gallery-card:hover::before {
+  opacity: 1;
+}
+
+.proof-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 142, 220, 0.38);
+}
+
+.proof-icon {
+  font-size: 1.7rem;
+  margin-bottom: 14px;
+}
+
+.proof-card h3 {
+  margin: 0 0 8px;
+}
+
+.proof-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ROADMAP */
+
+.roadmap {
+  display: grid;
+  gap: 18px;
+}
+
+.phase-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.095), rgba(255,255,255,0.035));
+  backdrop-filter: blur(14px);
+  padding: 24px;
+  transition: 0.25s ease;
+}
+
+.phase-card:hover {
+  transform: translateY(-5px) scale(1.005);
+  box-shadow: 0 24px 70px rgba(255,79,216,0.15);
+}
+
+.phase-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.phase-title {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.phase-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  box-shadow: 0 0 22px rgba(255, 79, 216, 0.32);
+}
+
+.phase-title h3 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.phase-badge {
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(25,247,255,0.1);
+  border: 1px solid rgba(25,247,255,0.24);
+  color: #baffff;
+  font-size: 0.78rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.phase-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.phase-list span {
+  padding: 12px 13px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.86);
+  line-height: 1.35;
+}
+
+.phase-list span::before {
+  content: "✦ ";
+  color: var(--pink);
+}
+
+/* ORIGIN */
+
+.origin {
+  position: relative;
+  min-height: 84svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin: 40px 0;
+}
+
+.origin-bg {
+  position: absolute;
+  inset: 0;
+  background: url("./assets/origin.jpg") center/cover no-repeat;
+  filter: saturate(1.08) contrast(1.08);
+  transform: scale(1.04);
+}
+
+.origin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(5,3,10,.8), rgba(5,3,10,.52), rgba(5,3,10,.9)),
+    radial-gradient(circle at center, rgba(255,79,216,.14), rgba(0,0,0,.42) 55%, rgba(0,0,0,.82));
+}
+
+.origin-box {
+  position: relative;
+  z-index: 2;
+  width: min(850px, calc(100% - 32px));
+  padding: clamp(28px, 6vw, 56px);
+  text-align: center;
+  border-radius: 34px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(10, 5, 18, 0.58);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 26px 90px rgba(0,0,0,0.45);
+}
+
+.origin-box h2 {
+  font-size: clamp(2.35rem, 8vw, 5.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  margin: 0 0 22px;
+}
+
+.origin-lines {
+  color: rgba(255,255,255,0.86);
+  font-size: clamp(1.02rem, 2.4vw, 1.35rem);
+  line-height: 1.75;
+}
+
+.birth-line {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 1.22em;
+  font-weight: 1000;
+  color: white;
+  text-shadow: 0 0 24px rgba(255, 79, 216, 0.7);
+}
+
+/* GALLERY */
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 18px;
+}
+
+.gallery-card {
+  position: relative;
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  min-height: 320px;
+  transition: 0.25s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 70px rgba(25,247,255,0.12);
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  transition: 0.35s ease;
+}
+
+.gallery-card:hover img {
+  transform: scale(1.055);
+}
+
+.gallery-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.78), transparent 58%);
+}
+
+.gallery-caption {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2;
+}
+
+.gallery-caption b {
+  display: block;
+  font-size: 1.24rem;
+  margin-bottom: 4px;
+}
+
+.gallery-caption span {
+  color: rgba(255,255,255,0.74);
+  line-height: 1.45;
+}
+
+.gallery-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* COMMUNITY */
+
+.community {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 22px;
+  align-items: center;
+}
+
+.community-img {
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.community-img img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.community-panel {
+  padding: clamp(24px, 5vw, 42px);
+  border-radius: 34px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.035));
+  backdrop-filter: blur(16px);
+}
+
+.community-panel h2 {
+  font-size: clamp(2.1rem, 5vw, 4.2rem);
+}
+
+.community-panel p {
+  color: var(--muted);
+  line-height: 1.75;
+  font-size: 1.05rem;
+}
+
+/* CTA */
+
+.final-cta {
+  text-align: center;
+  padding: 96px 18px 70px;
+  position: relative;
+}
+
+.final-card {
+  width: min(950px, 100%);
+  margin: auto;
+  padding: clamp(34px, 7vw, 70px);
+  border-radius: 38px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,79,216,.22), transparent 30%),
+    radial-gradient(circle at 80% 20%, rgba(25,247,255,.16), transparent 26%),
+    linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.035));
+  backdrop-filter: blur(18px);
+  box-shadow: 0 26px 100px rgba(0,0,0,.35);
+}
+
+.final-card h2 {
+  margin: 0;
+  font-size: clamp(2.7rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
+}
+
+.final-card p {
+  color: var(--muted);
+  max-width: 670px;
+  margin: 18px auto 26px;
+  line-height: 1.7;
+}
+
+footer {
+  padding: 34px 18px 44px;
+  text-align: center;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.88rem;
+}
+
+/* REVEALS */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* MOBILE */
+
+@media (max-width: 860px) {
+  .nav {
+    border-radius: 24px;
+  }
+
+  .nav-links a:not(.live-pill) {
+    display: none;
+  }
+
+  .hero-inner,
+  .community,
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding-top: 108px;
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(4rem, 18vw, 6.2rem);
+  }
+
+  .hero-card {
+    margin-top: 6px;
+  }
+
+  .proof-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .phase-top {
+    flex-direction: column;
+  }
+
+  .phase-list {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 70px 0;
+  }
+
+  .origin {
+    min-height: 76svh;
+  }
+
+  .ticker span {
+    padding: 13px 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand span {
+    display: none;
+  }
+
+  .proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .hero-card-row {
+    grid-template-columns: 1fr;
+  }
+
+  .origin-box {
+    border-radius: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
 </style>
 </head>
 
 <body>
+<div class="page-glow glow-one"></div>
+<div class="page-glow glow-two"></div>
 
 <nav class="nav">
-<div>$TOEZ</div>
-<div>
-<a href="#chart">Chart</a>
-<a href="#roadmap">Roadmap</a>
-<a href="https://t.me/ToezOGToeken" target="_blank">Telegram</a>
-<a href="https://x.com/toezogtoeken" target="_blank">X</a>
-</div>
+  <a class="brand" href="#top">
+    <img src="./assets/logo.png" alt="$TOEZ logo" />
+    <span>$TOEZ</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="#roadmap">Roadmap</a>
+    <a href="#origin">Origin</a>
+    <a href="#wild">Gallery</a>
+    <a class="live-pill" href="#" target="_blank" rel="noopener">
+      <span class="live-dot"></span>
+      LIVE
+    </a>
+  </div>
 </nav>
 
-<section class="hero">
-<div class="hero-bg"></div>
+<header class="hero" id="top">
+  <div class="hero-bg"></div>
 
-<div style="position:relative">
-<h1>TEN TOEZ DOWN</h1>
-<p>Soft Toez. Hard Conviction. Built in the trenches.</p>
+  <div class="hero-inner">
+    <div class="hero-copy reveal">
+      <div class="kicker">Born in a group chat · Built for the trenches</div>
 
-<a class="btn btn-primary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank">Buy</a>
-<a class="btn btn-secondary" href="https://t.me/ToezOGToeken" target="_blank">Telegram</a>
-<a class="btn btn-secondary" href="https://x.com/toezogtoeken" target="_blank">X</a>
+      <h1>
+        <span class="gradient-text">TEN</span><br />
+        <span class="gradient-text">TOEZ</span><br />
+        <span class="gradient-text">DOWN</span>
+      </h1>
 
-<div class="ca-box">
-<span id="ca">4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp</span>
-<button class="copy-btn" onclick="copyCA()">COPY</button>
+      <p class="hero-sub">
+        A Solana meme coin with a soft side and hard conviction.
+        Bonded, DEX paid, dev active, and powered by a community that keeps showing up.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#" target="_blank" rel="noopener">Buy $TOEZ</a>
+        <a class="btn btn-secondary" href="#" target="_blank" rel="noopener">View Chart</a>
+        <a class="btn btn-secondary" href="#" target="_blank" rel="noopener">Join Telegram</a>
+      </div>
+    </div>
+
+    <div class="hero-card reveal">
+      <img src="./assets/logo.png" alt="$TOEZ token icon" />
+
+      <div class="hero-card-row">
+        <div class="mini-stat">
+          <b>Bonded</b>
+          <span>Launched and planted.</span>
+        </div>
+        <div class="mini-stat">
+          <b>DEX Paid</b>
+          <span>Chart visibility live.</span>
+        </div>
+        <div class="mini-stat">
+          <b>Spaces</b>
+          <span>Dev showing up.</span>
+        </div>
+        <div class="mini-stat">
+          <b>TikTok</b>
+          <span>Content in motion.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span><i>●</i> Bonded</span>
+    <span><i>●</i> DEX Paid</span>
+    <span><i>●</i> Dev Live Daily</span>
+    <span><i>●</i> Community Driven</span>
+    <span><i>●</i> Soft Toez. Hard Conviction.</span>
+    <span><i>●</i> Born In A Group Chat</span>
+
+    <span><i>●</i> Bonded</span>
+    <span><i>●</i> DEX Paid</span>
+    <span><i>●</i> Dev Live Daily</span>
+    <span><i>●</i> Community Driven</span>
+    <span><i>●</i> Soft Toez. Hard Conviction.</span>
+    <span><i>●</i> Born In A Group Chat</span>
+  </div>
 </div>
-</div>
+
+<section class="section">
+  <div class="section-head reveal">
+    <div class="eyebrow">Project Pulse</div>
+    <h2><span class="gradient-text">Clear. Simple. Planted.</span></h2>
+    <p class="lead">
+      No fake dashboards. No forced utility. $TOEZ is a light-hearted community coin built around presence, memes, lives, and staying ten toez down.
+    </p>
+  </div>
+
+  <div class="proof-grid">
+    <div class="proof-card reveal">
+      <div class="proof-icon">🦶</div>
+      <h3>Bonded</h3>
+      <p>Token launched and liquidity locked in.</p>
+    </div>
+
+    <div class="proof-card reveal">
+      <div class="proof-icon">📈</div>
+      <h3>DEX Paid</h3>
+      <p>Chart visibility is live for the trenches.</p>
+    </div>
+
+    <div class="proof-card reveal">
+      <div class="proof-icon">🎙️</div>
+      <h3>Dev Active</h3>
+      <p>Spaces, TikTok, and community presence.</p>
+    </div>
+
+    <div class="proof-card reveal">
+      <div class="proof-icon">💅</div>
+      <h3>Soft Chaos</h3>
+      <p>Feminine touch, degen energy, meme-native roots.</p>
+    </div>
+  </div>
 </section>
 
-<!-- TRENCHES -->
-<section class="section reveal">
-<img src="./assets/trenches.jpg" style="width:100%;border-radius:16px;">
-<h2>Built In The Trenches</h2>
-<p>This started in a group chat. Not a pitch deck.</p>
-</section>
-
-<!-- CHART -->
-<section class="section" id="chart">
-<h2>Live Chart</h2>
-<iframe src="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp?embed=1&theme=dark"
-style="width:100%;height:500px;border:none;border-radius:16px;"></iframe>
-</section>
-
-<!-- ROADMAP -->
 <section class="section" id="roadmap">
-<h2>Roadmap</h2>
+  <div class="section-head reveal">
+    <div class="eyebrow">The Toeprint</div>
+    <h2><span class="gradient-text">$TOEZ Roadmap</span></h2>
+    <p class="lead">
+      No impossible promises. Just steady steps, clear vibes, and a community that stays planted.
+    </p>
+  </div>
 
-<div class="grid">
-<div class="card">
-<h3>Phase 1 — First Steps</h3>
-<p>Launch, liquidity, DEX, early holders, dev active</p>
-</div>
+  <div class="roadmap">
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">01</div>
+          <h3>Phase 1 — First Steps</h3>
+        </div>
+        <div class="phase-badge">Launched</div>
+      </div>
+      <div class="phase-list">
+        <span>Token deployed</span>
+        <span>Liquidity locked in</span>
+        <span>DEX listings live</span>
+        <span>Early holders stepped in</span>
+        <span>Dev showing up daily</span>
+      </div>
+    </article>
 
-<div class="card">
-<h3>Phase 2 — Find Our Toezing</h3>
-<p>Grow holders, memes spread, raids, floor builds</p>
-</div>
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">02</div>
+          <h3>Phase 2 — Find Our Toezing</h3>
+        </div>
+        <div class="phase-badge">In Motion</div>
+      </div>
+      <div class="phase-list">
+        <span>Grow a solid base of holders</span>
+        <span>Daily engagement + live presence</span>
+        <span>Meme culture starts spreading</span>
+        <span>Community raids across platforms</span>
+        <span>Establish a steady floor</span>
+      </div>
+    </article>
 
-<div class="card">
-<h3>Phase 3 — Ten Toez Down</h3>
-<p>Content, identity, giveaways</p>
-</div>
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">03</div>
+          <h3>Phase 3 — Ten Toez Down</h3>
+        </div>
+        <div class="phase-badge">Next Up</div>
+      </div>
+      <div class="phase-list">
+        <span>Stronger identity, louder presence</span>
+        <span>Toez Chronicles / meme drops</span>
+        <span>Community content + inside jokes</span>
+        <span>Website upgrades, fun not forced</span>
+        <span>Giveaways + participation rewards</span>
+      </div>
+    </article>
 
-<div class="card">
-<h3>Phase 4 — On Our Toez</h3>
-<p>Brand, collabs, expansion</p>
-</div>
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">04</div>
+          <h3>Phase 4 — On Our Toez</h3>
+        </div>
+        <div class="phase-badge">Expansion</div>
+      </div>
+      <div class="phase-list">
+        <span>Recognizable brand in meme space</span>
+        <span>Collabs with other communities</span>
+        <span>Consistent volume + attention</span>
+        <span>Bigger Spaces, more reach</span>
+        <span>Community-led momentum</span>
+      </div>
+    </article>
 
-<div class="card">
-<h3>Phase 5 — No Stepping Back</h3>
-<p>Consistency, long-term growth</p>
-</div>
-</div>
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">05</div>
+          <h3>Phase 5 — No Stepping Back</h3>
+        </div>
+        <div class="phase-badge">Long-Term Vibe</div>
+      </div>
+      <div class="phase-list">
+        <span>Dev stays active and visible</span>
+        <span>Content never stops</span>
+        <span>Adapt to trends, keep the vibe</span>
+        <span>Long-term community growth</span>
+        <span>Stay planted, stay solid</span>
+      </div>
+    </article>
+  </div>
 </section>
 
-<!-- GALLERY -->
+<section class="origin" id="origin">
+  <div class="origin-bg"></div>
+
+  <div class="origin-box reveal">
+    <h2><span class="gradient-text">THE FIRST STEP</span></h2>
+
+    <div class="origin-lines">
+      It didn’t start with a roadmap.<br />
+      It didn’t start with utility.<br /><br />
+
+      It started with a pedicure… and a group chat.<br /><br />
+
+      One pic got sent.<br />
+      The chat went off.<br />
+      Memes started flying.<br /><br />
+
+      And somewhere in the chaos…<br />
+      <span class="birth-line">$TOEZ was born.</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="wild">
+  <div class="section-head reveal">
+    <div class="eyebrow">Campaign Gallery</div>
+    <h2><span class="gradient-text">Toez In The Wild</span></h2>
+    <p class="lead">
+      From pedicure lore to degen trenches, the community takes $TOEZ wherever the meme goes.
+    </p>
+  </div>
+
+  <div class="gallery-grid">
+    <a class="gallery-card reveal" href="#" aria-label="Featured $TOEZ image">
+      <img src="./assets/lambo.jpg" alt="$TOEZ in the wild" />
+      <div class="gallery-caption">
+        <b>From Trench Toez To Buc-ee’s</b>
+        <span>The meme travels. The toes stay planted.</span>
+      </div>
+    </a>
+
+    <div class="gallery-stack">
+      <a class="gallery-card reveal" href="#">
+        <img src="./assets/selfie.jpg" alt="$TOEZ selfie" />
+        <div class="gallery-caption">
+          <b>Documenting The Journey</b>
+          <span>Community moments, meme energy.</span>
+        </div>
+      </a>
+
+      <a class="gallery-card reveal" href="#">
+        <img src="./assets/trail.jpg" alt="$TOEZ trail" />
+        <div class="gallery-caption">
+          <b>Trailblazing Toez</b>
+          <span>First steps turn into movements.</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section class="section">
-<h2>Toez In The Wild</h2>
+  <div class="community">
+    <div class="community-img reveal">
+      <img src="./assets/character.jpg" alt="$TOEZ character" />
+    </div>
 
-<div class="grid">
-<img src="./assets/lambo.jpg">
-<img src="./assets/selfie.jpg">
-<img src="./assets/trail.jpg">
-</div>
+    <div class="community-panel reveal">
+      <div class="eyebrow">Community First</div>
+      <h2><span class="gradient-text">The real utility is showing up.</span></h2>
+      <p>
+        $TOEZ isn’t pretending to be something it’s not.
+        No fake utility. No forced tech. No overcomplicated promises.
+      </p>
+      <p>
+        Just a dev that shows up, a community that keeps the memes moving,
+        and a project built on presence, personality, and staying ten toez down.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#" target="_blank" rel="noopener">Join Telegram</a>
+        <a class="btn btn-secondary" href="#" target="_blank" rel="noopener">Follow X</a>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- CHARACTER -->
-<section class="section">
-<img src="./assets/character.jpg" style="width:100%;border-radius:16px;">
-<h2>The Energy</h2>
-<p>The real utility is showing up.</p>
+<section class="final-cta">
+  <div class="final-card reveal">
+    <h2><span class="gradient-text">STAY PLANTED.</span><br />STAY TEN TOEZ DOWN.</h2>
+    <p>
+      Born in a group chat. Built in the trenches. Powered by soft chaos, hard conviction, and a community that does not step back.
+    </p>
+
+    <div class="hero-actions" style="justify-content:center;">
+      <a class="btn btn-primary" href="#" target="_blank" rel="noopener">Buy $TOEZ</a>
+      <a class="btn btn-secondary" href="#" target="_blank" rel="noopener">View Chart</a>
+      <a class="btn btn-secondary" href="#" target="_blank" rel="noopener">Join Telegram</a>
+    </div>
+  </div>
 </section>
 
-<!-- STICKY BUY -->
-<div class="sticky">
-<span>$TOEZ</span>
-<a href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank">BUY</a>
-</div>
+<footer>
+  © 2026 $TOEZ · Soft Toez. Hard Conviction. · No fake utility, just community.
+</footer>
 
 <script>
-function copyCA(){
-navigator.clipboard.writeText(document.getElementById("ca").innerText)
-event.target.innerText="COPIED"
-setTimeout(()=>event.target.innerText="COPY",1000)
+const revealEls = document.querySelectorAll(".reveal");
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, {
+  threshold: 0.12,
+  rootMargin: "0px 0px -40px 0px"
+});
+
+revealEls.forEach((el, index) => {
+  el.style.transitionDelay = `${Math.min(index * 45, 280)}ms`;
+  revealObserver.observe(el);
+});
+
+const glowCards = document.querySelectorAll(".proof-card, .phase-card, .gallery-card");
+
+glowCards.forEach((card) => {
+  card.addEventListener("pointermove", (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty("--x", `${x}%`);
+    card.style.setProperty("--y", `${y}%`);
+  });
+});
+
+const originBg = document.querySelector(".origin-bg");
+const heroBg = document.querySelector(".hero-bg");
+
+function parallax() {
+  const y = window.scrollY || 0;
+
+  if (heroBg) {
+    heroBg.style.transform = `translateY(${y * 0.08}px) scale(1.06)`;
+  }
+
+  if (originBg) {
+    const rect = originBg.parentElement.getBoundingClientRect();
+    const offset = rect.top * -0.06;
+    originBg.style.transform = `translateY(${offset}px) scale(1.08)`;
+  }
+
+  requestAnimationFrame(parallax);
 }
 
-const observer=new IntersectionObserver(entries=>{
-entries.forEach(e=>{
-if(e.isIntersecting){e.target.classList.add("show")}
-})
-})
-
-document.querySelectorAll(".reveal").forEach(el=>observer.observe(el))
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  requestAnimationFrame(parallax);
+}
 </script>
 
 </body>
