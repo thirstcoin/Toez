@@ -6,7 +6,6 @@
 <title>$TOEZ — Ten Toez Down</title>
 
 <style>
-/* === SAME STYLE (unchanged, already strong) === */
 :root {
   --bg: #05030a;
   --panel: rgba(255, 255, 255, 0.065);
@@ -30,7 +29,6 @@ body {
   color: var(--text);
 }
 
-/* ===== NAV ===== */
 .nav {
   position: fixed;
   top: 14px;
@@ -59,6 +57,7 @@ body {
   width:36px;
   height:36px;
   border-radius:50%;
+  object-fit: cover;
 }
 
 .nav-links {
@@ -78,20 +77,28 @@ body {
   color:white;
 }
 
-/* ===== HERO ===== */
 .hero {
   min-height:100vh;
   display:grid;
   place-items:center;
   padding:120px 20px;
   position:relative;
+  overflow:hidden;
 }
 
 .hero-bg {
   position:absolute;
   inset:0;
-  background:url("hero.jpg") center/cover no-repeat;
+  background:url("assets/hero.jpg") center/cover no-repeat;
   opacity:0.55;
+}
+
+.hero::after,
+.origin::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(5,3,10,0.25), rgba(5,3,10,0.9));
 }
 
 .hero-inner {
@@ -102,6 +109,7 @@ body {
   gap:40px;
   max-width:1100px;
   width:100%;
+  align-items:center;
 }
 
 .hero h1 {
@@ -113,12 +121,14 @@ body {
 .gradient-text {
   background:linear-gradient(90deg,#fff,#ff8edc,#19f7ff);
   -webkit-background-clip:text;
+  background-clip:text;
   color:transparent;
 }
 
 .hero-sub {
   color:var(--muted);
   margin-top:14px;
+  line-height:1.6;
 }
 
 .btn {
@@ -127,6 +137,9 @@ body {
   border-radius:14px;
   font-weight:800;
   border:1px solid var(--border);
+  color:white;
+  text-decoration:none;
+  margin-right:8px;
 }
 
 .btn-primary {
@@ -137,18 +150,19 @@ body {
   background:rgba(255,255,255,0.08);
 }
 
-/* ===== HERO CARD ===== */
 .hero-card {
   border:1px solid var(--border);
   border-radius:24px;
   padding:16px;
+  background:rgba(255,255,255,0.06);
+  box-shadow:var(--shadow);
 }
 
 .hero-card img {
+  width:100%;
   border-radius:18px;
 }
 
-/* ===== GALLERY ===== */
 .gallery {
   padding:80px 20px;
   max-width:1100px;
@@ -163,11 +177,12 @@ body {
 
 .grid img {
   width:100%;
+  height:320px;
   border-radius:18px;
   object-fit:cover;
+  border:1px solid var(--border);
 }
 
-/* ===== COMMUNITY ===== */
 .community {
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -175,24 +190,27 @@ body {
   max-width:1100px;
   margin:auto;
   padding:80px 20px;
+  align-items:center;
 }
 
 .community img {
+  width:100%;
   border-radius:20px;
+  border:1px solid var(--border);
 }
 
-/* ===== ORIGIN ===== */
 .origin {
   min-height:80vh;
   display:grid;
   place-items:center;
   position:relative;
+  overflow:hidden;
 }
 
 .origin-bg {
   position:absolute;
   inset:0;
-  background:url("origin.jpg") center/cover no-repeat;
+  background:url("assets/origin.jpg") center/cover no-repeat;
   opacity:0.5;
 }
 
@@ -207,14 +225,12 @@ body {
   background:rgba(0,0,0,0.6);
 }
 
-/* ===== FOOTER ===== */
 footer {
   text-align:center;
   padding:40px;
   color:rgba(255,255,255,0.5);
 }
 
-/* MOBILE */
 @media(max-width:800px){
   .hero-inner,
   .community,
@@ -227,20 +243,19 @@ footer {
 
 <body>
 
-<!-- NAV -->
 <nav class="nav">
   <div class="brand">
-    <img src="logo.png">
+    <img src="assets/logo.png" alt="$TOEZ logo">
     $TOEZ
   </div>
+
   <div class="nav-links">
     <a href="#gallery">Gallery</a>
     <a href="#origin">Origin</a>
-    <a href="https://t.me/ToezOGToeken" target="_blank">Telegram</a>
+    <a href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Telegram</a>
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-bg"></div>
 
@@ -253,23 +268,22 @@ footer {
       </h1>
 
       <p class="hero-sub">
-        Born in a group chat. Built in the trenches.  
+        Born in a group chat. Built in the trenches.
         A meme coin powered by presence, content, and community.
       </p>
 
       <br>
 
-      <a class="btn btn-primary" href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank">Buy</a>
-      <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank">Chart</a>
+      <a class="btn btn-primary" href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Buy</a>
+      <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Chart</a>
     </div>
 
     <div class="hero-card">
-      <img src="character.jpg">
+      <img src="assets/character.jpg" alt="$TOEZ character">
     </div>
   </div>
 </section>
 
-<!-- ORIGIN -->
 <section class="origin" id="origin">
   <div class="origin-bg"></div>
 
@@ -289,24 +303,22 @@ footer {
   </div>
 </section>
 
-<!-- GALLERY -->
 <section class="gallery" id="gallery">
   <h2 class="gradient-text">TOEZ IN THE WILD</h2>
   <br>
 
   <div class="grid">
-    <img src="trenches.jpg">
-    <img src="selfie.jpg">
-    <img src="trail.jpg">
-    <img src="lambo.jpg">
-    <img src="origin.jpg">
-    <img src="character.jpg">
+    <img src="assets/trenches.jpg" alt="$TOEZ trenches">
+    <img src="assets/selfie.jpg" alt="$TOEZ selfie">
+    <img src="assets/trail.jpg" alt="$TOEZ trail">
+    <img src="assets/lambo.jpg" alt="$TOEZ lambo">
+    <img src="assets/origin.jpg" alt="$TOEZ origin">
+    <img src="assets/character.jpg" alt="$TOEZ character">
   </div>
 </section>
 
-<!-- COMMUNITY -->
 <section class="community">
-  <img src="lambo.jpg">
+  <img src="assets/lambo.jpg" alt="$TOEZ lambo">
 
   <div>
     <h2 class="gradient-text">Community is the Utility</h2>
@@ -318,8 +330,8 @@ footer {
 
     <br>
 
-    <a class="btn btn-primary" href="https://t.me/ToezOGToeken" target="_blank">Join Telegram</a>
-    <a class="btn btn-secondary" href="https://x.com/toezogtoeken" target="_blank">Follow X</a>
+    <a class="btn btn-primary" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Join Telegram</a>
+    <a class="btn btn-secondary" href="https://x.com/toezogtoeken" target="_blank" rel="noopener">Follow X</a>
   </div>
 </section>
 
