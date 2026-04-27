@@ -423,6 +423,35 @@ body::before {
   font-size: 1.06rem;
   line-height: 1.7;
 }
+/* ===== DEX CHART ===== */
+.dex-chart {
+  width: 100%;
+  height: 620px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: 0 24px 70px rgba(255,79,216,0.16);
+  background: rgba(0,0,0,0.45);
+}
+
+.dex-chart iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.chart-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .dex-chart {
+    height: 500px;
+  }
+}
+
 
 /* PROOF CARDS */
 .proof-grid {
@@ -1207,6 +1236,29 @@ footer {
       <h3>Community</h3>
       <p>Built by the trenches, for the trenches.</p>
     </div>
+  </div>
+</section>
+
+<section class="section" id="chart">
+  <div class="section-head">
+    <p class="eyebrow">LIVE MARKET</p>
+    <h2>Live $TOEZ Chart</h2>
+    <p>Watch the chart directly from Dexscreener.</p>
+  </div>
+
+  <div class="dex-chart">
+    <iframe
+      src="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp?embed=1&theme=dark"
+      title="Live TOEZ Dexscreener Chart"
+      loading="lazy"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <div class="chart-actions">
+    <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener noreferrer">
+      Open Full Chart
+    </a>
   </div>
 </section>
 
