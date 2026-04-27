@@ -3,1138 +3,1450 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>$TOEZ — Ten Toez Down | Solana Meme Culture</title>
+<title>$TOEZ — Ten Toez Down</title>
 
 <style>
 :root {
-  /* Core Brand Palette */
   --bg: #05030a;
-  --bg-alt: #0a0712;
-  --panel: rgba(255, 255, 255, 0.05);
-  --panel-strong: rgba(255, 255, 255, 0.09);
+  --panel: rgba(255, 255, 255, 0.065);
+  --panel-strong: rgba(255, 255, 255, 0.105);
   --text: #fff7ff;
-  --muted: rgba(255, 247, 255, 0.65);
-  
-  /* Accent Colors */
+  --muted: rgba(255, 247, 255, 0.72);
   --pink: #ff4fd8;
-  --pink-glow: rgba(255, 79, 216, 0.4);
   --rose: #ff8edc;
   --purple: #7c5cff;
   --cyan: #19f7ff;
-  --cyan-glow: rgba(25, 247, 255, 0.4);
   --gold: #ffd56a;
   --green: #67ffb3;
-  
-  /* Structural */
-  --border: rgba(255, 255, 255, 0.12);
-  --border-bright: rgba(255, 255, 255, 0.25);
-  --radius-lg: 32px;
-  --radius-md: 20px;
-  --shadow-main: 0 30px 90px rgba(0, 0, 0, 0.5);
-  --shadow-pink: 0 15px 45px rgba(255, 79, 216, 0.15);
-  --transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  --border: rgba(255, 255, 255, 0.14);
+  --shadow: 0 24px 80px rgba(255, 79, 216, 0.18);
 }
 
-/* Base Reset & Typography */
 * {
   box-sizing: border-box;
-  outline: none;
 }
 
 html {
   scroll-behavior: smooth;
-  font-size: 16px;
 }
 
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 79, 216, 0.18), transparent 32%),
+    radial-gradient(circle at 78% 15%, rgba(25, 247, 255, 0.13), transparent 28%),
+    radial-gradient(circle at 50% 85%, rgba(124, 92, 255, 0.16), transparent 34%),
+    var(--bg);
   color: var(--text);
-  line-height: 1.5;
   overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
 }
 
-/* Background FX Layers */
-.canvas-wrap {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  overflow: hidden;
-  pointer-events: none;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.ambient-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.25;
-  z-index: -1;
-  animation: pulseGlow 15s infinite alternate ease-in-out;
+img {
+  max-width: 100%;
+  display: block;
 }
 
-.glow-1 { width: 500px; height: 500px; background: var(--pink); top: -10%; left: -10%; }
-.glow-2 { width: 600px; height: 600px; background: var(--purple); bottom: -15%; right: -5%; animation-delay: -5s; }
-.glow-3 { width: 400px; height: 400px; background: var(--cyan); top: 40%; left: 60%; animation-delay: -2s; opacity: 0.15; }
-
-@keyframes pulseGlow {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(60px, 40px) scale(1.2); }
-}
-
-body::after {
+body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.04;
   pointer-events: none;
-  z-index: 1000;
+  opacity: 0.26;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
 }
 
-/* Utility Classes */
-.container {
-  width: min(1240px, calc(100% - 40px));
-  margin-inline: auto;
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #fff 0%, var(--rose) 40%, var(--cyan) 80%, #fff 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shine 8s linear infinite;
-}
-
-@keyframes shine {
-  to { background-position: 200% center; }
-}
-
-/* Nav System */
-.nav-container {
+.page-glow {
   position: fixed;
-  top: 20px;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  padding: 0 20px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.36;
+  pointer-events: none;
+  z-index: -1;
+  animation: floatGlow 12s ease-in-out infinite alternate;
 }
 
-.nav-bar {
-  background: rgba(13, 10, 22, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+.glow-one {
+  background: var(--pink);
+  left: -100px;
+  top: 160px;
+}
+
+.glow-two {
+  background: var(--cyan);
+  right: -120px;
+  bottom: 120px;
+  animation-delay: -4s;
+}
+
+@keyframes floatGlow {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(45px, -35px, 0) scale(1.15); }
+}
+
+/* NAV */
+.nav {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1120px, calc(100% - 24px));
+  z-index: 50;
+  padding: 10px 12px;
   border: 1px solid var(--border);
-  padding: 8px 12px;
-  border-radius: 100px;
+  border-radius: 999px;
+  background: rgba(9, 5, 18, 0.68);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 14px 50px rgba(0,0,0,0.35);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  max-width: 1100px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
 }
 
-.nav-logo {
+.brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 900;
-  font-size: 1.2rem;
-  letter-spacing: -0.02em;
-  padding-left: 8px;
-  text-decoration: none;
-  color: var(--text);
+  gap: 10px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
 }
 
-.nav-logo img {
-  width: 36px;
-  height: 36px;
+.brand img {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  box-shadow: 0 0 15px var(--pink-glow);
+  object-fit: cover;
+  box-shadow: 0 0 24px rgba(255, 79, 216, 0.7);
+  animation: coinPulse 3s ease-in-out infinite;
+}
+
+@keyframes coinPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 22px rgba(255,79,216,.55); }
+  50% { transform: scale(1.05); box-shadow: 0 0 34px rgba(25,247,255,.45); }
 }
 
 .nav-links {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 4px;
 }
 
 .nav-links a {
-  padding: 10px 18px;
-  font-size: 0.88rem;
-  font-weight: 600;
+  padding: 10px 13px;
+  border-radius: 999px;
+  font-size: 0.86rem;
   color: var(--muted);
-  border-radius: 50px;
-  transition: var(--transition);
-  text-decoration: none;
+  transition: 0.25s ease;
 }
 
 .nav-links a:hover {
   color: white;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.08);
 }
 
-.nav-cta {
-  background: white;
-  color: black !important;
-  padding: 10px 22px !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-}
-
-.nav-cta:hover {
-  transform: scale(1.05);
-  background: var(--pink) !important;
-  color: white !important;
-}
-
-/* Hero Core */
-.hero {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
+.live-pill {
+  display: inline-flex;
   align-items: center;
-  padding-top: 120px;
-  padding-bottom: 80px;
+  gap: 7px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(255, 79, 216, 0.13);
+  border: 1px solid rgba(255, 79, 216, 0.28);
+  color: white !important;
+  font-weight: 850;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 18px var(--green);
+  animation: blink 1.3s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* HERO */
+.hero {
+  min-height: 100svh;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 120px 18px 70px;
   overflow: hidden;
 }
 
-.hero-visual-bg {
+.hero-bg {
   position: absolute;
   inset: 0;
-  background: url('assets/hero.jpg') center/cover no-repeat;
-  opacity: 0.15;
-  filter: grayscale(0.5) blur(4px);
-  z-index: -1;
+  background: url("assets/hero.jpg") center/cover no-repeat;
+  opacity: 0.85; 
+  transform: scale(1.04);
+  filter: saturate(1.1) contrast(1.1);
+  z-index: 1;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 80px;
-  align-items: center;
-}
-
-.hero-content {
-  position: relative;
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   z-index: 2;
+  background:
+    linear-gradient(to bottom, rgba(5,3,10,0.1), rgba(5,3,10,0.4) 70%, var(--bg)),
+    radial-gradient(circle at center, transparent 0%, rgba(5,3,10,0.5) 80%);
 }
 
-.badge {
-  display: inline-flex;
+.hero-inner {
+  position: relative;
+  z-index: 3;
+  width: min(1120px, 100%);
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 38px;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 79, 216, 0.1);
-  border: 1px solid rgba(255, 79, 216, 0.3);
-  padding: 8px 16px;
-  border-radius: 100px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+}
+
+.kicker {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 142, 220, 0.35);
+  background: rgba(255, 142, 220, 0.1);
+  color: #ffd9f7;
+  font-size: 0.85rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--rose);
-  margin-bottom: 24px;
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--pink);
-  border-radius: 50%;
-  animation: pulseDot 2s infinite;
-}
-
-@keyframes pulseDot {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 79, 216, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 79, 216, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 79, 216, 0); }
 }
 
 .hero h1 {
-  font-size: clamp(3.5rem, 9vw, 7.5rem);
-  line-height: 0.85;
-  font-weight: 950;
-  margin: 0 0 24px;
-  letter-spacing: -0.05em;
+  margin: 20px 0 14px;
+  font-size: clamp(3.2rem, 9vw, 7.6rem);
+  line-height: 0.88;
+  letter-spacing: -0.075em;
   text-transform: uppercase;
+  text-shadow: 0 0 34px rgba(255, 79, 216, 0.34);
 }
 
-.hero p {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
+.gradient-text {
+  background: linear-gradient(90deg, #fff, #ff8edc 35%, #19f7ff 72%, #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-sub {
+  max-width: 680px;
   color: var(--muted);
-  max-width: 600px;
-  margin-bottom: 40px;
-  line-height: 1.6;
+  font-size: clamp(1.05rem, 2vw, 1.32rem);
+  line-height: 1.65;
 }
 
-.hero-btns {
+.hero-status-bar {
   display: flex;
-  gap: 16px;
+  gap: 12px;
+  margin-top: 24px;
   flex-wrap: wrap;
 }
 
-.btn {
-  padding: 18px 36px;
-  border-radius: 16px;
+.status-tag {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font-size: 0.82rem;
   font-weight: 900;
-  font-size: 1rem;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(8px);
   letter-spacing: 0.05em;
-  transition: var(--transition);
+  text-transform: uppercase;
+}
+
+.status-tag::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 13px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px 19px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  font-weight: 950;
+  transition: 0.25s ease;
+  overflow: hidden;
 }
 
-.btn-main {
+.btn-primary {
   background: linear-gradient(135deg, var(--pink), var(--purple));
   color: white;
-  box-shadow: 0 15px 35px var(--pink-glow);
+  box-shadow: 0 0 24px rgba(255, 79, 216, 0.38);
+  animation: softPulse 2.6s ease-in-out infinite;
 }
 
-.btn-main:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 50px var(--pink-glow);
-}
-
-.btn-ghost {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
+.btn-secondary {
+  background: rgba(255,255,255,0.075);
   color: white;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
-.btn-ghost:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: var(--border-bright);
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(255, 79, 216, 0.24);
 }
 
-/* Floating Card FX */
-.hero-image-wrap {
-  position: relative;
-  perspective: 1200px;
+@keyframes softPulse {
+  0%, 100% { box-shadow: 0 0 22px rgba(255, 79, 216, 0.32); }
+  50% { box-shadow: 0 0 36px rgba(25, 247, 255, 0.28); }
 }
 
-.main-card {
-  width: 100%;
-  aspect-ratio: 1;
-  background: var(--panel);
+.hero-card {
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 15px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
-  transform: rotateY(-12deg) rotateX(8deg);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: var(--shadow-main);
-  position: relative;
-  overflow: hidden;
+  box-shadow: var(--shadow);
 }
 
-.main-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transform: skewX(-25deg);
-  animation: cardShine 6s infinite;
-}
-
-@keyframes cardShine {
-  0% { left: -100%; }
-  20% { left: 150%; }
-  100% { left: 150%; }
-}
-
-.main-card img {
+.hero-card img {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
   object-fit: cover;
-  border-radius: calc(var(--radius-lg) - 10px);
 }
 
-.floating-stat {
-  position: absolute;
-  background: rgba(10, 10, 20, 0.85);
-  border: 1px solid var(--cyan);
-  padding: 14px 24px;
-  border-radius: 18px;
-  backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 10px 30px rgba(25, 247, 255, 0.2);
-  z-index: 10;
-}
-
-.stat-1 { top: 10%; left: -10%; animation: float 4s infinite ease-in-out; }
-.stat-2 { bottom: 15%; right: -5%; animation: float 4s infinite ease-in-out reverse; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-.floating-stat span:first-child {
-  font-size: 0.75rem;
-  color: var(--cyan);
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.floating-stat span:last-child {
-  font-size: 1.3rem;
-  font-weight: 900;
-}
-
-/* Ticker */
-.ticker-container {
-  background: var(--panel-strong);
-  border-block: 1px solid var(--border);
-  padding: 24px 0;
+/* TICKER */
+.ticker-wrap {
+  border-block: 1px solid rgba(255,255,255,0.11);
+  background: rgba(255,255,255,0.045);
   overflow: hidden;
+  transform: rotate(-1deg);
+  margin-top: -18px;
   position: relative;
-  z-index: 10;
-  transform: skewY(-1.2deg);
-  margin: 40px 0;
+  z-index: 4;
 }
 
-.ticker-track {
+.ticker {
   display: flex;
+  width: max-content;
+  animation: tickerMove 28s linear infinite;
+}
+
+.ticker span {
+  padding: 15px 28px;
   white-space: nowrap;
-  animation: scroll 30s linear infinite;
-  gap: 80px;
-}
-
-.ticker-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  font-size: 1.4rem;
-  font-weight: 900;
+  font-weight: 950;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: white;
 }
 
-.ticker-item i {
+.ticker i {
   color: var(--pink);
   font-style: normal;
+  text-shadow: 0 0 14px rgba(255,79,216,0.65);
 }
 
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+@keyframes tickerMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-/* Bento Info Section */
-section {
-  padding: 100px 0;
-}
-
-.section-title {
-  text-align: center;
-  margin-bottom: 80px;
-}
-
-.section-title h2 {
-  font-size: clamp(2.5rem, 7vw, 5rem);
-  text-transform: uppercase;
-  font-weight: 950;
-  margin: 15px 0 0;
-}
-
-.section-title p {
-  color: var(--muted);
-  max-width: 650px;
-  margin: 24px auto 0;
-  font-size: 1.2rem;
-  line-height: 1.6;
-}
-
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-auto-rows: minmax(220px, auto);
-  gap: 24px;
-}
-
-.bento-item {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 40px;
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
-  overflow: hidden;
-}
-
-.bento-item:hover {
-  border-color: var(--pink);
-  background: rgba(255,255,255,0.08);
-  transform: translateY(-8px);
-}
-
-.bento-item h3 {
-  font-size: 1.7rem;
-  margin: 0 0 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.bento-item p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-.bento-icon {
-  position: absolute;
-  top: 40px;
-  right: 40px;
-  font-size: 3.5rem;
-  opacity: 0.15;
-}
-
-.bento-1 { grid-column: span 8; }
-.bento-2 { grid-column: span 4; }
-.bento-3 { grid-column: span 4; }
-.bento-4 { grid-column: span 4; }
-.bento-5 { grid-column: span 4; }
-
-/* Roadmap */
-.roadmap-v2 {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  max-width: 900px;
+/* SECTIONS */
+.section {
+  width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
+  padding: 92px 0;
 }
 
-.roadmap-card {
-  display: grid;
-  grid-template-columns: 100px 1fr 180px;
-  align-items: center;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 40px;
-  border-radius: var(--radius-md);
-  gap: 40px;
-  transition: var(--transition);
+.section-head {
+  text-align: center;
+  margin-bottom: 36px;
 }
 
-.roadmap-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: var(--purple);
+.eyebrow {
+  color: var(--rose);
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 0.78rem;
 }
 
-.roadmap-step {
-  width: 100px;
-  height: 100px;
-  background: var(--panel-strong);
-  border-radius: 24px;
-  display: grid;
-  place-items: center;
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: var(--pink);
-  border: 1px solid rgba(255,255,255,0.05);
+.section h2 {
+  font-size: clamp(2.35rem, 6vw, 4.7rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  margin: 10px 0 12px;
 }
 
-.roadmap-info h3 {
-  font-size: 2rem;
-  margin: 0 0 10px;
-}
-
-.roadmap-info p {
+.section p.lead {
+  max-width: 720px;
+  margin: 0 auto;
   color: var(--muted);
-  margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.06rem;
+  line-height: 1.7;
 }
 
-.roadmap-status {
-  text-align: right;
-}
-
-.status-pill {
-  padding: 10px 20px;
-  border-radius: 100px;
-  font-size: 0.85rem;
-  font-weight: 900;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-}
-
-.status-active {
-  border-color: var(--green);
-  color: var(--green);
-  background: rgba(103, 255, 179, 0.1);
-  box-shadow: 0 0 20px rgba(103, 255, 179, 0.1);
-}
-
-/* Toez Eats / Truck Section */
-.truck-section {
-  padding: 120px 0;
-}
-
-.eats-module {
-  background: #0d0b14;
-  border-radius: 48px;
-  border: 1px solid var(--border);
+/* PROOF CARDS */
+.proof-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  overflow: hidden;
-  box-shadow: var(--shadow-main);
-  min-height: 700px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
 }
 
-.eats-visual {
+.proof-card {
+  position: relative;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+  min-height: 150px;
+  overflow: hidden;
+  transition: 0.25s ease;
+}
+
+.proof-card::before,
+.phase-card::before,
+.gallery-card::before,
+.eats-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  opacity: 0;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,79,216,0.28), transparent 32%);
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.proof-card:hover::before,
+.phase-card:hover::before,
+.gallery-card:hover::before,
+.eats-card:hover::before {
+  opacity: 1;
+}
+
+.proof-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 142, 220, 0.38);
+}
+
+.proof-icon {
+  font-size: 1.7rem;
+  margin-bottom: 14px;
+}
+
+.proof-card h3 {
+  margin: 0 0 8px;
+}
+
+.proof-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ROADMAP */
+.roadmap {
+  display: grid;
+  gap: 18px;
+}
+
+.phase-card {
   position: relative;
   overflow: hidden;
-  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.095), rgba(255,255,255,0.035));
+  backdrop-filter: blur(14px);
+  padding: 24px;
+  transition: 0.25s ease;
 }
 
-.truck-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 1s ease;
+.phase-card:hover {
+  transform: translateY(-5px) scale(1.005);
+  box-shadow: 0 24px 70px rgba(255,79,216,0.15);
 }
 
-.eats-visual:hover .truck-image {
-  transform: scale(1.05);
-}
-
-.eats-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.9));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 40px;
-}
-
-.eats-overlay h3 {
-  font-size: 2.5rem;
-  margin: 0;
-  font-weight: 900;
-}
-
-.eats-main {
-  padding: 60px;
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-header {
+.phase-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 40px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 20px;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
 }
 
-.menu-header h3 {
+.phase-title {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.phase-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  box-shadow: 0 0 22px rgba(255, 79, 216, 0.32);
+}
+
+.phase-title h3 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.phase-badge {
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(25,247,255,0.1);
+  border: 1px solid rgba(25,247,255,0.24);
+  color: #baffff;
+  font-size: 0.78rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.phase-badge-completed {
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(103, 255, 179, 0.12);
+  border: 1px solid rgba(103, 255, 179, 0.35);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 950;
+  white-space: nowrap;
+  box-shadow: 0 0 12px rgba(103, 255, 179, 0.1);
+}
+
+.phase-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.phase-list span {
+  padding: 12px 13px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.86);
+  line-height: 1.35;
+}
+
+.phase-list span::before {
+  content: "✦ ";
   color: var(--pink);
 }
 
-.menu-list {
+.phase-list .done::before {
+  content: "✔ ";
+  color: var(--green);
+}
+
+/* ORIGIN */
+.origin {
+  position: relative;
+  min-height: 80svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 80px 0;
+}
+
+.origin-bg {
+  position: absolute;
+  inset: 0;
+  background: url("assets/origin.jpg") center/cover no-repeat;
+  filter: saturate(0.6) blur(4px) brightness(0.4); 
+  transform: scale(1.1);
+}
+
+.origin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 20%, rgba(5,3,10,0.9) 90%);
+}
+
+.origin-box {
+  position: relative;
+  z-index: 2;
+  width: min(880px, calc(100% - 32px));
+  padding: clamp(30px, 5vw, 60px);
+  text-align: center;
+  border-radius: 40px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(10, 5, 18, 0.72);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
   display: flex;
   flex-direction: column;
   gap: 32px;
 }
 
-.menu-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 15px;
+.origin-photo {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  box-shadow: 0 0 40px rgba(255, 79, 216, 0.2);
+}
+
+.origin-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: saturate(1.1) contrast(1.1);
+}
+
+.origin-box h2 {
+  font-size: clamp(2.4rem, 8vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  margin: 0;
+}
+
+.origin-lines {
+  color: rgba(255,255,255,0.92);
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  line-height: 1.8;
+}
+
+.birth-line {
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 1.3em;
+  font-weight: 1000;
+  color: white;
+  text-shadow: 0 0 24px rgba(255, 79, 216, 0.7);
+}
+
+/* GALLERY */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 18px;
+}
+
+.gallery-card {
+  position: relative;
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  min-height: 320px;
+  transition: 0.25s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 70px rgba(25,247,255,0.12);
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: cover;
+  transition: 0.35s ease;
+}
+
+.gallery-card:hover img {
+  transform: scale(1.055);
+}
+
+.gallery-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.78), transparent 58%);
+}
+
+.gallery-caption {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2;
+}
+
+.gallery-caption b {
+  display: block;
+  font-size: 1.24rem;
+  margin-bottom: 4px;
+}
+
+.gallery-caption span {
+  color: rgba(255,255,255,0.74);
+  line-height: 1.45;
+}
+
+.gallery-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* TOEZ EATS */
+.eats-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 30px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: clamp(20px, 5vw, 60px);
+  backdrop-filter: blur(20px);
+}
+
+.eats-card {
+  position: relative;
+  padding: 22px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.eats-card.active {
+  border-color: var(--pink);
+  background: rgba(255, 79, 216, 0.1);
+  box-shadow: 0 0 20px rgba(255, 79, 216, 0.2);
+}
+
+.menu-board {
+  background: rgba(0,0,0,0.4);
+  border: 2px dashed var(--border);
+  border-radius: 30px;
+  padding: 30px;
   position: relative;
 }
 
-.menu-item::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(25, 247, 255, 0.2), transparent);
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 15px;
 }
 
-.menu-item-info h4 {
-  font-size: 1.6rem;
-  margin: 0 0 6px;
-  color: var(--text);
-  text-transform: uppercase;
-  font-weight: 800;
-}
-
-.menu-item-info p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-.menu-price {
-  font-family: 'Courier New', monospace;
-  color: var(--cyan);
-  font-weight: 900;
-  font-size: 1.4rem;
-  background: rgba(25, 247, 255, 0.1);
-  padding: 4px 12px;
-  border-radius: 8px;
-}
-
-.menu-footer {
-  margin-top: auto;
-  padding-top: 40px;
-  text-align: center;
-}
-
-/* Call to Action Banner */
-.cta-banner {
-  background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('assets/trenches.jpg') center/cover fixed;
-  padding: 120px 40px;
-  text-align: center;
-  border-radius: 48px;
-  margin: 80px 0;
-  border: 1px solid var(--border);
-}
-
-.cta-banner h2 {
-  font-size: clamp(2.5rem, 9vw, 6.5rem);
-  line-height: 0.9;
-  margin-bottom: 30px;
-  font-weight: 950;
-  text-transform: uppercase;
-}
-
-.cta-banner p {
-  color: var(--muted);
-  font-size: 1.4rem;
-  max-width: 700px;
-  margin: 0 auto 50px;
-}
-
-/* Origin Section */
-.origin-wrap {
+/* COMMUNITY */
+.community {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 22px;
   align-items: center;
 }
 
-.origin-image img {
+.community-img {
+  border-radius: 34px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.community-img img {
   width: 100%;
-  border-radius: 32px;
-  box-shadow: var(--shadow-pink);
-  border: 1px solid var(--border-bright);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
 }
 
-.origin-text h2 {
-  font-size: 3.5rem;
-  margin-bottom: 30px;
-  font-weight: 900;
+.community-panel {
+  padding: clamp(24px, 5vw, 42px);
+  border-radius: 34px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.035));
+  backdrop-filter: blur(16px);
 }
 
-.origin-text p {
-  font-size: 1.15rem;
+.community-panel h2 {
+  font-size: clamp(2.1rem, 5vw, 4.2rem);
+}
+
+.community-panel p {
   color: var(--muted);
-  margin-bottom: 24px;
+  line-height: 1.75;
+  font-size: 1.05rem;
 }
 
-/* Footer */
-footer {
-  padding: 100px 0 60px;
-  border-top: 1px solid var(--border);
+/* CTA */
+.final-cta {
   text-align: center;
+  padding: 96px 18px 70px;
+  position: relative;
 }
 
-.footer-nav {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin-bottom: 40px;
+.final-card {
+  width: min(950px, 100%);
+  margin: auto;
+  padding: clamp(34px, 7vw, 70px);
+  border-radius: 38px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,79,216,.22), transparent 30%),
+    radial-gradient(circle at 80% 20%, rgba(25,247,255,.16), transparent 26%),
+    linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.035));
+  backdrop-filter: blur(18px);
+  box-shadow: 0 26px 100px rgba(0,0,0,.35);
 }
 
-.footer-nav a {
-  color: var(--text);
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 1.1rem;
-  transition: var(--transition);
+.final-card h2 {
+  margin: 0;
+  font-size: clamp(2.7rem, 8vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
 }
 
-.footer-nav a:hover {
-  color: var(--pink);
+.final-card p {
+  color: var(--muted);
+  max-width: 670px;
+  margin: 18px auto 26px;
+  line-height: 1.7;
 }
 
-.copyright {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 0.05em;
+footer {
+  padding: 34px 18px 44px;
+  text-align: center;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.88rem;
 }
 
-/* Responsive Overrides */
-@media (max-width: 1024px) {
-  .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 60px; }
-  .hero-content { order: 2; }
-  .hero-image-wrap { order: 1; max-width: 500px; margin: 0 auto; }
-  .hero h1 { font-size: 5rem; }
-  .hero-btns { justify-content: center; }
-  
-  .eats-module { grid-template-columns: 1fr; }
-  .eats-visual { height: 400px; }
-  
-  .bento-1, .bento-2, .bento-3, .bento-4, .bento-5 { grid-column: span 12; }
-  .origin-wrap { grid-template-columns: 1fr; text-align: center; }
-  
-  .roadmap-card { grid-template-columns: 1fr; text-align: center; }
-  .roadmap-step { margin: 0 auto; }
-  .roadmap-status { text-align: center; }
-}
-
-@media (max-width: 600px) {
-  .nav-links:not(.nav-cta-wrap) { display: none; }
-  .hero h1 { font-size: 3.5rem; }
-  .section-title h2 { font-size: 3rem; }
-  .footer-nav { flex-direction: column; gap: 20px; }
-}
-
-/* Animations */
+/* REVEALS */
 .reveal {
   opacity: 0;
-  transform: translateY(40px);
-  transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(28px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
 }
 
-.reveal.active {
+.reveal.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* MOBILE */
+@media (max-width: 860px) {
+  .nav {
+    border-radius: 24px;
+  }
+
+  .nav-links a:not(.live-pill) {
+    display: none;
+  }
+
+  .hero-inner,
+  .community,
+  .gallery-grid,
+  .eats-container {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding-top: 108px;
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: clamp(4rem, 18vw, 6.2rem);
+  }
+
+  .hero-card {
+    margin-top: 6px;
+  }
+
+  .proof-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .phase-top {
+    flex-direction: column;
+  }
+
+  .phase-list {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 70px 0;
+  }
+
+  .origin {
+    min-height: 76svh;
+  }
+
+  .ticker span {
+    padding: 13px 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand span {
+    display: none;
+  }
+
+  .proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .hero-card-row {
+    grid-template-columns: 1fr;
+  }
+
+  .origin-box {
+    border-radius: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
 </style>
 </head>
 
 <body>
+<div class="page-glow glow-one"></div>
+<div class="page-glow glow-two"></div>
 
-<div class="canvas-wrap">
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
-  <div class="ambient-glow glow-3"></div>
-</div>
+<nav class="nav">
+  <a class="brand" href="#top">
+    <img src="assets/logo.png" alt="$TOEZ logo" />
+    <span>$TOEZ</span>
+  </a>
 
-<nav class="nav-container">
-  <div class="nav-bar">
-    <a href="#" class="nav-logo">
-      <img src="assets/logo.png" alt="$TOEZ" />
-      <span>$TOEZ</span>
+  <div class="nav-links">
+    <a href="#roadmap">Roadmap</a>
+    <a href="#origin">Origin</a>
+    <a href="#wild">Gallery</a>
+    <a href="#toez-eats">Menu</a>
+    <a class="live-pill" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">
+      <span class="live-dot"></span>
+      LIVE
     </a>
-    
-    <div class="nav-links">
-      <a href="#pulse">Pulse</a>
-      <a href="#origin">Origin</a>
-      <a href="#roadmap">Roadmap</a>
-      <a href="#menu">Menu</a>
-      <div class="nav-cta-wrap">
-        <a href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" class="nav-cta">BUY NOW</a>
-      </div>
-    </div>
   </div>
 </nav>
 
-<header class="hero">
-  <div class="hero-visual-bg"></div>
-  <div class="container hero-grid">
-    <div class="hero-content">
-      <div class="badge">
-        <span class="pulse-dot"></span>
-        Planting Seeds on Solana
-      </div>
-      <h1>TEN <span class="gradient-text">TOEZ</span> DOWN</h1>
-      <p>A high-conviction Solana movement born in the trenches. No fake promises, no artificial utility—just presence, personality, and staying planted.</p>
-      
-      <div class="hero-btns">
-        <a href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" class="btn btn-main">Get $TOEZ</a>
-        <a href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" class="btn btn-ghost">Live Chart</a>
+<header class="hero" id="top">
+  <div class="hero-bg"></div>
+
+  <div class="hero-inner">
+    <div class="hero-copy reveal">
+      <div class="kicker">Born in a group chat · Built for the trenches</div>
+
+      <h1>
+        <span class="gradient-text">TEN</span><br />
+        <span class="gradient-text">TOEZ</span><br />
+        <span class="gradient-text">DOWN</span>
+      </h1>
+
+      <p class="hero-sub">
+        A Solana meme coin with a soft side and hard conviction. Powered by a community that keeps showing up.
+      </p>
+
+      <div class="hero-status-bar">
+        <div class="status-tag">Launched</div>
+        <div class="status-tag">Bonded</div>
+        <div class="status-tag">DEX Paid</div>
+     </div>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Buy $TOEZ</a>
+        <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">View Chart</a>
       </div>
     </div>
-    
-    <div class="hero-image-wrap">
-      <div class="main-card">
-        <img src="assets/character.jpg" alt="$TOEZ Character" />
-      </div>
-      
-      <div class="floating-stat stat-1">
-        <span>Conviction</span>
-        <span>Maximum</span>
-      </div>
-      
-      <div class="floating-stat stat-2">
-        <span>Market Status</span>
-        <span>Planted</span>
-      </div>
+
+    <div class="hero-card reveal">
+      <img src="assets/character.jpg" alt="$TOEZ Character Art" />
     </div>
   </div>
 </header>
 
-<div class="ticker-container">
-  <div class="ticker-track">
-    <div class="ticker-item"><i>✦</i> SOFT TOEZ. HARD CONVICTION.</div>
-    <div class="ticker-item"><i>✦</i> BORN IN A GROUP CHAT</div>
-    <div class="ticker-item"><i>✦</i> $TOEZ IS PLANTED</div>
-    <div class="ticker-item"><i>✦</i> THE TRENCHES FAVOR THE BOLD</div>
-    <div class="ticker-item"><i>✦</i> SOFT TOEZ. HARD CONVICTION.</div>
-    <div class="ticker-item"><i>✦</i> BORN IN A GROUP CHAT</div>
-    <div class="ticker-item"><i>✦</i> $TOEZ IS PLANTED</div>
-    <div class="ticker-item"><i>✦</i> THE TRENCHES FAVOR THE BOLD</div>
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span><i>●</i> Bonded</span>
+    <span><i>●</i> DEX Paid</span>
+    <span><i>●</i> Dev Live Daily</span>
+    <span><i>●</i> Community Driven</span>
+    <span><i>●</i> Soft Toez. Hard Conviction.</span>
+    <span><i>●</i> Born In A Group Chat</span>
+
+    <span><i>●</i> Bonded</span>
+    <span><i>●</i> DEX Paid</span>
+    <span><i>●</i> Dev Live Daily</span>
+    <span><i>●</i> Community Driven</span>
+    <span><i>●</i> Soft Toez. Hard Conviction.</span>
+    <span><i>●</i> Born In A Group Chat</span>
   </div>
 </div>
 
-<section id="pulse" class="container">
-  <div class="section-title reveal">
-    <div class="badge">Project Pulse</div>
-    <h2>Stay <span class="gradient-text">Planted.</span></h2>
-    <p>Success in the trenches isn't about the fastest sprint; it's about who's left standing when the dust settles. We are ten toez down.</p>
+<section class="section">
+  <div class="section-head reveal">
+    <div class="eyebrow">Project Pulse</div>
+    <h2><span class="gradient-text">Clear. Simple. Planted.</span></h2>
+    <p class="lead">
+      No fake dashboards. No forced utility. $TOEZ is a light-hearted community coin built around presence, memes, and staying ten toez down.
+    </p>
   </div>
 
-  <div class="bento-grid">
-    <div class="bento-item bento-1 reveal">
-      <div class="bento-icon">🦶</div>
-      <h3>Unshakable Roots</h3>
-      <p>Liquidity locked, contract verified. We didn't come here to play; we came to stay planted while others blow away.</p>
+  <div class="proof-grid">
+    <div class="proof-card reveal">
+      <div class="proof-icon">🦶</div>
+      <h3>Bonded</h3>
+      <p>Liquidity locked and planted for the long haul.</p>
     </div>
-    <div class="bento-item bento-2 reveal">
-      <div class="bento-icon">💅</div>
+
+    <div class="proof-card reveal">
+      <div class="proof-icon">📈</div>
+      <h3>DEX Paid</h3>
+      <p>Full chart visibility and trending data live.</p>
+    </div>
+
+    <div class="proof-card reveal">
+      <div class="proof-icon">💅</div>
       <h3>Soft Chaos</h3>
-      <p>A unique aesthetic blend of feminine energy and raw trench degen culture. Stand out or blend in.</p>
+      <p>Feminine touch with raw meme-native energy.</p>
     </div>
-    <div class="bento-item bento-3 reveal">
-      <div class="bento-icon">📊</div>
-      <h3>DEX Visibility</h3>
-      <p>Full marketing integration on DexScreener and premium tracking platforms. Transparency at every candle.</p>
-    </div>
-    <div class="bento-item bento-4 reveal">
-      <div class="bento-icon">🤝</div>
-      <h3>Group Chat Alpha</h3>
-      <p>Born from the community, for the community. The strongest bonds are forged in the red candles.</p>
-    </div>
-    <div class="bento-item bento-5 reveal">
-      <div class="bento-icon">🔥</div>
-      <h3>Daily Presence</h3>
-      <p>The dev team and core community are active 24/7. Presence is the only utility that actually matters.</p>
+
+    <div class="proof-card reveal">
+      <div class="proof-icon">🤝</div>
+      <h3>Community</h3>
+      <p>Built by the trenches, for the trenches.</p>
     </div>
   </div>
 </section>
 
-<section id="origin" class="container">
-  <div class="origin-wrap reveal">
-    <div class="origin-image">
-      <img src="assets/origin.jpg" alt="The Toez Story" />
+<section class="section">
+    <div class="section-head reveal">
+      <div class="eyebrow">Trench Thesis</div>
+      <h2><span class="gradient-text">Absurdly Simple.</span></h2>
     </div>
-    <div class="origin-text">
-      <div class="badge">The Backstory</div>
-      <h2>Born in the <span class="gradient-text">Chaos</span></h2>
-      <p>Ten Toez Down wasn't a corporate boardroom decision. It was a realization in the middle of a Solana group chat: the market is full of noise, but lacking in soul.</p>
-      <p>We created $TOEZ as a symbol for those who don't run. For those who understand that being "ten toez down" means having the conviction to see a vision through to the end.</p>
-      <p>From the first storyboard to the final contract, every pixel and every line of code was built with the intent of staying planted.</p>
+    <div class="reveal" style="max-width: 800px; margin: 0 auto; text-align: center; background: var(--panel); padding: 40px; border-radius: 30px; border: 1px solid var(--border);">
+      <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text); margin-bottom: 24px;">
+        $TOEZ is a Solana-based meme coin that leans all the way into absurdity, simplicity, and viral energy. Born from the idea that not everything in crypto needs to take itself seriously.
+      </p>
+      <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text); margin-bottom: 24px;">
+        $TOEZ embraces pure meme culture with a clean recognizable identity and a community-first mindset.
+      </p>
+      <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text);">
+        Built on Solana for fast, low-cost transactions, $TOEZ is designed to move quickly as the memes that fuel it. No overcomplicated promises. Just a strong brand, a growing community, and the kind of chaotic creativity that turns inside jokes into movements. It's weird. It's memorable. It's $TOEZ.
+      </p>
     </div>
-  </div>
 </section>
 
-<section id="menu" class="truck-section container">
-  <div class="section-title reveal">
-    <div class="badge">Nourishment for the Bold</div>
-    <h2>TOEZ <span class="gradient-text">EATS</span></h2>
-    <p>The official food truck of the Solana ecosystem. Feeding the community one banger at a time.</p>
+<section class="section" id="roadmap">
+  <div class="section-head reveal">
+    <div class="eyebrow">The Toeprint</div>
+    <h2><span class="gradient-text">$TOEZ Roadmap</span></h2>
+    <p class="lead">
+      No impossible promises. Just steady steps, clear vibes, and a community that stays planted.
+    </p>
   </div>
 
-  <div class="eats-module reveal">
-    <div class="eats-visual">
-      <img src="assets/toez_truck.jpg" class="truck-image" alt="The Toez Truck" />
-      <div class="eats-overlay">
-        <h3>TOEZ TRUCK #001</h3>
-        <p style="margin: 5px 0 0; color: var(--rose);">Now serving the trenches.</p>
+  <div class="roadmap">
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">01</div>
+          <h3>Phase 1 — First Steps</h3>
+        </div>
+        <div class="phase-badge-completed">Completed</div>
       </div>
+      <div class="phase-list">
+        <span class="done">Token deployed</span>
+        <span class="done">Liquidity locked in</span>
+        <span class="done">DEX listings live</span>
+        <span class="done">Early holders stepped in</span>
+        <span class="done">Dev showing up daily</span>
+      </div>
+    </article>
+
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">02</div>
+          <h3>Phase 2 — Find Our Toezing</h3>
+        </div>
+        <div class="phase-badge">In Motion</div>
+      </div>
+      <div class="phase-list">
+        <span>Grow a solid base of holders</span>
+        <span>Daily engagement + live presence</span>
+        <span>Meme culture starts spreading</span>
+        <span>Community raids across platforms</span>
+        <span>Establish a steady floor</span>
+      </div>
+    </article>
+
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">03</div>
+          <h3>Phase 3 — Ten Toez Down</h3>
+        </div>
+        <div class="phase-badge">Next Up</div>
+      </div>
+      <div class="phase-list">
+        <span>Stronger identity, louder presence</span>
+        <span>Toez Chronicles / meme drops</span>
+        <span>Community content + inside jokes</span>
+        <span>Website upgrades, fun not forced</span>
+        <span>Giveaways + participation rewards</span>
+      </div>
+    </article>
+
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">04</div>
+          <h3>Phase 4 — On Our Toez</h3>
+        </div>
+        <div class="phase-badge">Expansion</div>
+      </div>
+      <div class="phase-list">
+        <span>Recognizable brand in meme space</span>
+        <span>Collabs with other communities</span>
+        <span>Consistent volume + attention</span>
+        <span>Bigger Spaces, more reach</span>
+        <span>Community-led momentum</span>
+      </div>
+    </article>
+
+    <article class="phase-card reveal">
+      <div class="phase-top">
+        <div class="phase-title">
+          <div class="phase-num">05</div>
+          <h3>Phase 5 — No Stepping Back</h3>
+        </div>
+        <div class="phase-badge">Long-Term Vibe</div>
+      </div>
+      <div class="phase-list">
+        <span>Dev stays active and visible</span>
+        <span>Content never stops</span>
+        <span>Adapt to trends, keep the vibe</span>
+        <span>Long-term community growth</span>
+        <span>Stay planted, stay solid</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="origin" id="origin">
+  <div class="origin-bg"></div>
+
+  <div class="origin-box reveal">
+    <h2><span class="gradient-text">THE FIRST STEP</span></h2>
+
+    <div class="origin-photo">
+        <img src="assets/origin.jpg" alt="The original pedicure pic that started $TOEZ" />
     </div>
+
+    <div class="origin-lines">
+      It didn’t start with a roadmap.<br />
+      It didn’t start with utility.<br /><br />
+
+      It started with a pedicure… and a group chat.<br /><br />
+
+      One pic got sent.<br />
+      The chat went off.<br />
+      Memes started flying.<br /><br />
+
+      And somewhere in the chaos…<br />
+      <span class="birth-line">$TOEZ was born.</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="wild">
+  <div class="section-head reveal">
+    <div class="eyebrow">Campaign Gallery</div>
+    <h2><span class="gradient-text">Toez In The Wild</span></h2>
+    <p class="lead">
+      From pedicure lore to degen trenches, the community takes $TOEZ wherever the meme goes.
+    </p>
+  </div>
+
+  <div class="gallery-grid">
+    <a class="gallery-card reveal" href="#" aria-label="Featured $TOEZ image">
+      <img src="assets/trenches.jpg" alt="$TOEZ in the wild" />
+      <div class="gallery-caption">
+        <b>From Trench Toez To Buc-ee’s</b>
+        <span>The meme travels. The toes stay planted.</span>
+      </div>
+    </a>
+
+    <div class="gallery-stack">
+      <a class="gallery-card reveal" href="#">
+        <img src="assets/selfie.jpg" alt="$TOEZ selfie" />
+        <div class="gallery-caption">
+          <b>Documenting The Journey</b>
+          <span>Community moments, meme energy.</span>
+        </div>
+      </a>
+
+      <a class="gallery-card reveal" href="#">
+        <img src="assets/trail.jpg" alt="$TOEZ trail" />
+        <div class="gallery-caption">
+          <b>Trailblazing Toez</b>
+          <span>First steps turn into movements.</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="toez-eats">
+  <div class="section-head reveal">
+    <div class="eyebrow">Now Serving</div>
+    <h2><span class="gradient-text">TOEZ EATS</span></h2>
+    <p class="lead">
+      The official food truck of the Solana trenches. Giving flowers to the projects that keep the ecosystem moving. 
+    </p>
+  </div>
+
+  <div class="eats-container reveal">
     
-    <div class="eats-main">
-      <div class="menu-header">
-        <h3>Chef's Specials</h3>
-        <div style="font-size: 0.8rem; opacity: 0.5;">SOLANA NETWORK ONLY</div>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <h3 style="text-transform: uppercase; letter-spacing: 0.1em; color: var(--pink); font-size: 0.9rem;">Step 1: Choose Your Degen Size</h3>
+      
+      <div class="eats-card active" onclick="selectDegenSize(this)">
+        <b style="font-size: 1.1rem; display: block; margin-bottom: 5px;">THE TOE-SUCKER</b>
+        <p style="font-size: 0.85rem; margin: 0; color: var(--muted);">Small/Appetizer. Just testing the waters. We love the spirit.</p>
       </div>
       
-      <div class="menu-list">
-        <div class="menu-item">
-          <div class="menu-item-info">
-            <h4>Bangers & Mash</h4>
-            <p>Traditional community favorites served with creamy conviction.</p>
-          </div>
-          <div class="menu-price">$SOL</div>
-        </div>
-        
-        <div class="menu-item">
-          <div class="menu-item-info">
-            <h4>Avocado Toast</h4>
-            <p>High-tier trench fuel. Smashed liquidity on sourdough.</p>
-          </div>
-          <div class="menu-price">$SOL</div>
-        </div>
-        
-        <div class="menu-item">
-          <div class="menu-item-info">
-            <h4>PHAT (Large)</h4>
-            <p>A massive serving of pure market momentum.</p>
-          </div>
-          <div class="menu-price">$SOL</div>
-        </div>
-        
-        <div class="menu-item">
-          <div class="menu-item-info">
-            <h4 style="color: var(--gold);">FYPM</h4>
-            <p>The ultimate dessert. "Fuck You Pay Me."</p>
-          </div>
-          <div class="menu-price">FREE</div>
-        </div>
+      <div class="eats-card" onclick="selectDegenSize(this)">
+        <b style="font-size: 1.1rem; display: block; margin-bottom: 5px;">THE PLANTED</b>
+        <p style="font-size: 0.85rem; margin: 0; color: var(--muted);">Medium/Meal. You’ve seen some things. You’re here for the vibes and the floor.</p>
       </div>
       
-      <div class="menu-footer">
-        <a href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" class="btn btn-main" style="width: 100%; justify-content: center;">ORDER NOW</a>
+      <div class="eats-card" onclick="selectDegenSize(this)">
+        <b style="font-size: 1.1rem; display: block; margin-bottom: 5px;">TEN TOEZ DOWN</b>
+        <p style="font-size: 0.85rem; margin: 0; color: var(--muted);">Large/Feast. Absolute Legend. Total conviction. Diamond handed.</p>
+      </div>
+    </div>
+
+    <div class="menu-board">
+      <div style="position: absolute; top: -15px; right: 20px; background: var(--pink); color: white; padding: 5px 15px; border-radius: 10px; font-weight: 950; font-size: 0.75rem; letter-spacing: 0.05em;">OPEN 24/7</div>
+      
+      <h3 style="text-align: center; font-family: monospace; font-size: 2rem; margin: 0 0 30px; letter-spacing: 0.2em;">MENU</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">PHAT</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">Thick liquidity and community-first weight. A heavy-hitting ecosystem staple.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">REBATE</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">The rewards that keep on giving. Freshly prepared for the savvy degen.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">GREEN CANDLE MAN</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">A sugary blast of pure upward momentum. The chart's favorite snack.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div class="menu-item">
+          <div>
+            <b style="color: var(--cyan); font-size: 1.1rem; text-transform: uppercase;">NXT / HODI</b>
+            <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">The OG conviction pairing. Smoked daily for those who never sell.</p>
+          </div>
+          <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$SOL</span>
+        </div>
+
+        <div style="margin-top: 10px;">
+            <span style="color: var(--pink); font-weight: 950; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em;">Seasonal Dessert</span>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-top: 5px;">
+              <div>
+                <b style="color: var(--gold); font-size: 1.1rem; text-transform: uppercase;">FYPM</b>
+                <p style="margin: 4px 0 0; font-size: 0.82rem; color: var(--muted); line-height: 1.4;">"Fuck You Pay Me." The sweetest exit liquidity you will ever taste.</p>
+              </div>
+              <span style="font-family: monospace; color: var(--pink); font-weight: 900;">$FREE</span>
+            </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="roadmap" class="container">
-  <div class="section-title reveal">
-    <div class="badge">The Toeprint</div>
-    <h2>Growth <span class="gradient-text">Roadmap</span></h2>
-  </div>
-
-  <div class="roadmap-v2">
-    <div class="roadmap-card reveal">
-      <div class="roadmap-step">01</div>
-      <div class="roadmap-info">
-        <h3>Planting Seeds</h3>
-        <p>Deployment, organic community growth, and establishing the base floor.</p>
-      </div>
-      <div class="roadmap-status">
-        <span class="status-pill status-active">COMPLETED</span>
-      </div>
+<section class="section">
+  <div class="community">
+    <div class="community-img reveal">
+      <img src="assets/lambo.jpg" alt="$TOEZ character" />
     </div>
 
-    <div class="roadmap-card reveal">
-      <div class="roadmap-step">02</div>
-      <div class="roadmap-info">
-        <h3>Trench Expansion</h3>
-        <p>Tier 1 marketing, "Toez Eats" content series, and holder base scaling.</p>
-      </div>
-      <div class="roadmap-status">
-        <span class="status-pill status-active">ACTIVE</span>
-      </div>
-    </div>
-
-    <div class="roadmap-card reveal">
-      <div class="roadmap-step">03</div>
-      <div class="roadmap-info">
-        <h3>Ten Toez World</h3>
-        <p>Ecosystem expansion, brand partnerships, and the global $TOEZ takeover.</p>
-      </div>
-      <div class="roadmap-status">
-        <span class="status-pill">LOCKED</span>
+    <div class="community-panel reveal">
+      <div class="eyebrow">Community First</div>
+      <h2><span class="gradient-text">The real utility is showing up.</span></h2>
+      <p>
+        $TOEZ isn’t pretending to be something it’s not.
+        No fake utility. No overcomplicated promises.
+      </p>
+      <p>
+        Just a dev that shows up, a community that keeps the memes moving,
+        and a project built on presence, personality, and staying ten toez down.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Join Telegram</a>
+        <a class="btn btn-secondary" href="https://x.com/toezogtoeken" target="_blank" rel="noopener">Follow X</a>
+        <a class="btn btn-secondary" href="https://www.tiktok.com/@toezogtoeken_" target="_blank" rel="noopener">TikTok</a>
       </div>
     </div>
   </div>
 </section>
 
-<section class="container reveal">
-  <div class="cta-banner">
-    <h2>JOIN THE <span class="gradient-text">TRENCHES</span></h2>
-    <p>Don't be the one watching from the sidelines. Stay planted with the $TOEZ community.</p>
-    <div class="hero-btns" style="justify-content: center;">
-      <a href="https://t.me/ToezOGToeken" target="_blank" class="btn btn-main">Telegram</a>
-      <a href="https://x.com/toezogtoeken" target="_blank" class="btn btn-ghost">Twitter / X</a>
-      <a href="https://www.tiktok.com/@toezogtoeken_" target="_blank" class="btn btn-ghost">TikTok</a>
+<section class="section">
+  <div class="final-cta">
+    <div class="final-card reveal">
+      <h2><span class="gradient-text">STAY PLANTED.</span><br />STAY TEN TOEZ DOWN.</h2>
+      <p>
+        Born in a group chat. Built in the trenches. Powered by soft chaos, hard conviction, and a community that does not step back.
+      </p>
+
+      <div class="hero-actions" style="justify-content:center;">
+        <a class="btn btn-primary" href="https://raydium.io/swap/?inputMint=sol&outputMint=4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Buy $TOEZ</a>
+        <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">View Chart</a>
+        <a class="btn btn-secondary" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Telegram</a>
+        <a class="btn btn-secondary" href="https://www.tiktok.com/@toezogtoeken_" target="_blank" rel="noopener">TikTok</a>
+      </div>
     </div>
   </div>
 </section>
 
 <footer>
-  <div class="container">
-    <div class="footer-nav">
-      <a href="#pulse">Pulse</a>
-      <a href="#origin">Origin</a>
-      <a href="#roadmap">Roadmap</a>
-      <a href="#menu">Menu</a>
-      <a href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank">Live Chart</a>
-    </div>
-    <div class="copyright">
-      © 2026 $TOEZ PROJECT. NO FINANCIAL ADVICE. STAY PLANTED.
-    </div>
-  </div>
+  © 2026 $TOEZ · Soft Toez. Hard Conviction. · No fake utility, just community.
 </footer>
 
 <script>
-// Reveal Animation on Scroll
-const observerOptions = {
-  threshold: 0.15,
-  rootMargin: "0px 0px -50px 0px"
-};
+const revealEls = document.querySelectorAll(".reveal");
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
     if (entry.isIntersecting) {
-      entry.target.classList.add('active');
+      entry.target.classList.add("visible");
+      revealObserver.unobserve(entry.target);
     }
   });
-}, observerOptions);
-
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-// Hero Card Interactive Parallax
-document.addEventListener('mousemove', (e) => {
-  const card = document.querySelector('.main-card');
-  if(!card) return;
-  
-  const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
-  const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
-  
-  card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+}, {
+  threshold: 0.12,
+  rootMargin: "0px 0px -40px 0px"
 });
 
-// Smooth Scroll for Nav Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({
-        behavior: 'smooth'
-      });
-    }
+revealEls.forEach((el, index) => {
+  el.style.transitionDelay = `${Math.min(index * 45, 280)}ms`;
+  revealObserver.observe(el);
+});
+
+const glowCards = document.querySelectorAll(".proof-card, .phase-card, .gallery-card, .eats-card");
+
+glowCards.forEach((card) => {
+  card.addEventListener("pointermove", (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty("--x", `${x}%`);
+    card.style.setProperty("--y", `${y}%`);
   });
 });
+
+function selectDegenSize(element) {
+    document.querySelectorAll('.eats-card').forEach(card => card.classList.remove('active'));
+    element.classList.add('active');
+}
+
+const originBg = document.querySelector(".origin-bg");
+const heroBg = document.querySelector(".hero-bg");
+
+function parallax() {
+  const y = window.scrollY || 0;
+
+  if (heroBg) {
+    heroBg.style.transform = `translateY(${y * 0.08}px) scale(1.06)`;
+  }
+
+  if (originBg) {
+    const rect = originBg.parentElement.getBoundingClientRect();
+    const offset = rect.top * -0.06;
+    originBg.style.transform = `translateY(${offset}px) scale(1.08)`;
+  }
+
+  requestAnimationFrame(parallax);
+}
+
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  requestAnimationFrame(parallax);
+}
 </script>
 
 </body>
