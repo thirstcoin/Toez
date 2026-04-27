@@ -759,7 +759,7 @@ body::before {
 
 .foodtruck-frame {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 30px;
   border: 1px solid rgba(255,255,255,0.16);
   background: rgba(255,255,255,0.055);
@@ -768,8 +768,11 @@ body::before {
 
 .foodtruck-frame img {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  display: block;
+  border-radius: 30px;
   filter: saturate(1.14) contrast(1.08) brightness(1.04);
 }
 
@@ -886,13 +889,6 @@ body::before {
   padding: 5px 9px;
 }
 
-.menu-price {
-  font-family: monospace;
-  color: var(--pink);
-  font-weight: 950;
-  white-space: nowrap;
-  text-shadow: 0 0 14px rgba(255,79,216,0.45);
-}
 
 .menu-badge-open {
   position: absolute;
@@ -1455,7 +1451,6 @@ footer {
               <p class="menu-item-desc">Stacked, heavy, and community-fed. A thick-cut Solana staple built for hungry degens.</p>
               <a class="menu-item-link" href="https://x.com/planet_fatnessx" target="_blank" rel="noopener">X: @planet_fatnessx</a>
             </div>
-            <span class="menu-price">$SOL</span>
           </div>
 
           <div class="menu-item">
@@ -1464,7 +1459,6 @@ footer {
               <p class="menu-item-desc">Wrapped tight with next-wave energy. Clean, loud, and made for the trench timeline.</p>
               <a class="menu-item-link" href="https://x.com/NXTWaveLabs" target="_blank" rel="noopener">X: @NXTWaveLabs</a>
             </div>
-            <span class="menu-price">$SOL</span>
           </div>
 
           <div class="menu-item">
@@ -1473,8 +1467,7 @@ footer {
               <p class="menu-item-desc">Fresh green momentum on toasted conviction. The chart snack that never skips leg day.</p>
               <a class="menu-item-link" href="https://x.com/greencandleman" target="_blank" rel="noopener">X: @greencandleman</a>
             </div>
-            <span class="menu-price">$SOL</span>
-          </div>
+            </div>
 
           <div class="menu-item">
             <div class="menu-item-main">
@@ -1491,8 +1484,7 @@ footer {
               <p class="menu-item-desc">Sweet, saucy, and value-loaded. A sticky rack of rewards for savvy Solana appetites.</p>
               <a class="menu-item-link" href="https://x.com/rebate_tariff" target="_blank" rel="noopener">X: @rebate_tariff</a>
             </div>
-            <span class="menu-price">$SOL</span>
-          </div>
+            </div>
         </div>
       </div>
     </div>
