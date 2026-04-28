@@ -392,6 +392,13 @@ body::before {
   to { transform: translateX(-50%); }
 }
 
+.buy-note {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
 /* SECTIONS */
 .section {
   width: min(1120px, calc(100% - 32px));
@@ -1220,16 +1227,27 @@ footer {
         <div class="status-tag">DEX Paid</div>
       </div>
 
-      <div class="hero-actions">
-       <a class="btn btn-primary"
-   href="https://raydium.io/swap/?inputMint=So11111111111111111111111111111111111111112&outputMint=3DRCui7ZbEykhrUHMbyXSvn5731fbKchFTFvs1Wjpump"
-   target="_blank"
-   rel="noopener noreferrer">
-  Buy $TOEZ
-</a>
-        <a class="btn btn-secondary" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">View Chart</a>
-      </div>
-    </div>
+   <div class="hero-actions">
+  <div class="cta-block">
+    <a class="btn btn-primary"
+       href="https://pump.fun/coin/3DRCui7ZbEykhrUHMbyXSvn5731fbKchFTFvs1Wjpump"
+       target="_blank"
+       rel="noopener noreferrer">
+      Buy $TOEZ
+    </a>
+
+    <p class="buy-note">
+      Opens Pump.fun — you may be prompted to use the mobile app.
+    </p>
+  </div>
+
+  <a class="btn btn-secondary"
+     href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp"
+     target="_blank"
+     rel="noopener noreferrer">
+    View Chart
+  </a>
+</div>
 
     <div class="hero-card reveal">
       <img src="assets/character.jpg" alt="$TOEZ Character Art" />
