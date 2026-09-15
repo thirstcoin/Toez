@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="theme-color" content="#150D22">
+<title>Link your wallet — Toezlandia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#150D22; --panel:#2B1940; --gold:#E9B84C; --gold-lo:#A8813A; --gold-hi:#FFD98A;
+  --parch:#F0E3C6; --muted:#B49FCB; --jade:#54A98C; --rose:#C96A8E; --purple-lo:#4E2E77;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;min-height:100dvh;
+  background:linear-gradient(180deg,#1B1029,#150D22 40%);
+  color:var(--parch);font-family:'Jost',system-ui,sans-serif;
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.card{max-width:400px;width:100%;text-align:center}
+h1{font-family:'Cinzel';font-size:20px;color:var(--gold-hi);margin:0 0 6px}
+p{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 18px}
+.state{
+  background:var(--panel);border:1px solid rgba(255,255,255,.07);border-left:3px solid var(--purple-lo);
+  border-radius:12px;padding:20px 18px;margin-bottom:14px;
+}
+.state.ok{border-left-color:var(--jade)}
+.state.err{border-left-color:var(--rose)}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--gold);
+  margin:0 auto 12px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.addr{font-size:15px;color:var(--gold-hi);font-weight:500;margin:6px 0}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Link your wallet</h1>
+  <p>This finishes connecting a Solana wallet to your TOEZLANDIA kingdom.</p>
+  <div id="box" class="state"><div class="spin"></div><p style="margin:0">Checking your link…</p></div>
+</div>
+<script>
+/* Set this to the same backend URL used by the main game. */
+const API_BASE = 'https://YOUR-API.onrender.com';
+
+const $ = s => document.querySelector(s);
+function setState(html, cls){
+  const b = $('#box');
+  b.className = 'state' + (cls ? ' ' + cls : '');
+  b.innerHTML = html;
+}
+function shortAddr(a){ return a.slice(0,4) + '…' + a.slice(-4); }
+
+async function post(path, body, token){
+  const r = await fetch(API_BASE + path, {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', ...(token ? {Authorization:'Bearer ' + token} : {}) },
+    body: JSON.stringify(body || {})
+  });
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error || 'Request failed');
+  return j;
+}
+
+function getProvider(){
+  if(window.solana && window.solana.isPhantom) return window.solana;
+  if(window.solflare && window.solflare.isSolflare) return window.solflare;
+  return null;
+}
+
+const B58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function base58Encode(bytes){
+  if(!bytes || bytes.length === 0) return '';
+  const digits = [0];
+  for(let i=0;i<bytes.length;i++){
+    let carry = bytes[i];
+    for(let j=0;j<digits.length;j++){ carry += digits[j]*256; digits[j] = carry%58; carry = Math.floor(carry/58); }
+    while(carry>0){ digits.push(carry%58); carry = Math.floor(carry/58); }
+  }
+  for(let k=0; bytes[k]===0 && k<bytes.length-1; k++) digits.push(0);
+  return digits.reverse().map(d=>B58_ALPHABET[d]).join('');
+}
+
+async function run(){
+  // STEP 1 — read the one-time token from the URL
+  const linkToken = new URLSearchParams(location.search).get('t');
+  if(!linkToken){
+    setState('<p style="margin:0">No link token in this URL. Go back to Telegram and tap <b>Connect Wallet</b> again.</p>', 'err');
+    return;
+  }
+
+  // STEP 2 — check for a wallet provider BEFORE touching the token.
+  // STEP 3 — if there is none, stop without consuming it. Exchanging first
+  // would burn the link for anyone who opened it in Safari/Chrome by
+  // accident, and the very next thing we'd tell them is to reopen that
+  // now-dead link inside Phantom.
+  const provider = getProvider();
+  if(!provider){
+    setState('<p style="margin:0">No Solana wallet found in this browser.</p>'
+      + '<p style="margin:8px 0 0">Open this page from inside the <b>Phantom</b> or <b>Solflare</b> app\'s own browser. '
+      + 'Your link is still valid — nothing has been used up yet.</p>', 'err');
+    return;
+  }
+
+  // STEP 4 — exchange the one-time token for a short-lived, wallet-scoped JWT
+  let jwtToken;
+  try{
+    const ex = await post('/api/wallet/link-session/exchange', {token: linkToken});
+    jwtToken = ex.jwt;
+  }catch(e){
+    setState('<p style="margin:0">' + (e.message || 'This link has expired.') + '</p>'
+      + '<p style="margin:8px 0 0">Go back to Telegram and tap <b>Connect Wallet</b> again — links last about 10 minutes and work only once.</p>', 'err');
+    return;
+  }
+
+  // STEP 5 — strip the secret from the address bar immediately
+  try{ history.replaceState(null, '', location.pathname); }catch(e){}
+
+  try{
+    // STEP 6 — connect
+    setState('<div class="spin"></div><p style="margin:0">Waiting for wallet approval…</p>');
+    const resp = await provider.connect();
+    const pubkey = (resp && resp.publicKey) ? resp.publicKey : provider.publicKey;
+    const address = pubkey.toString();
+
+    // STEP 7 — challenge
+    setState('<div class="spin"></div><p style="margin:0">Requesting signature…</p>');
+    const ch = await post('/api/wallet/challenge', {address}, jwtToken);
+
+    // STEP 8 — sign
+    const encoded = new TextEncoder().encode(ch.message);
+    const signed = await provider.signMessage(encoded, 'utf8');
+    const sigBytes = signed && signed.signature ? signed.signature : signed;
+    const signature = base58Encode(sigBytes instanceof Uint8Array ? sigBytes : new Uint8Array(sigBytes));
+
+    // STEP 9 — verify
+    setState('<div class="spin"></div><p style="margin:0">Verifying…</p>');
+    await post('/api/wallet/verify', {address, nonce: ch.nonce, signature}, jwtToken);
+
+    setState('<h2 style="margin:0 0 4px;font-family:Cinzel;color:var(--gold-hi);font-size:16px">Wallet verified</h2>'
+      + '<p class="addr">' + shortAddr(address) + '</p>'
+      + '<p style="margin:0">You can close this tab and go back to Telegram — the Realm tab will show it as connected.</p>', 'ok');
+  }catch(e){
+    // The token is spent by this point, so retrying cannot mean reloading
+    // this page — it has to mean getting a fresh link from Telegram.
+    setState('<p style="margin:0">' + ((e && e.message) || 'Wallet connection was cancelled.') + '</p>'
+      + '<p style="margin:8px 0 0">This link has now been used. Go back to Telegram and tap <b>Connect Wallet</b> again to get a new one.</p>', 'err');
+  }
+}
+run();
+</script>
+</body>
+</html>
