@@ -625,7 +625,7 @@ function unlockRelic(s, name){ if(!s.relics.includes(name)) s.relics.push(name);
    MODE is decided once at boot() and never toggled mid-session.
    Fill in API_BASE with your deployed Render URL before this does anything. */
 let MODE = 'local';                    // 'local' | 'server' — set by boot()
-const API_BASE = 'https://YOUR-API.onrender.com';
+const API_BASE =     'https://toezlandia-ecosystem-api.onrender.com';
 // Wherever wallet-link.html (the standalone one-time linking page) ends up
 // hosted — same backend, different static file. Must match its real URL.
 const WALLET_LINK_URL = 'https://toezogtoken.xyz/wallet-link.html';
