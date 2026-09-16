@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14101A">
+<title>$TOEZ · TOEZLANDIA — A Kingdom Built One Step at a Time</title>
+<meta name="description" content="$TOEZ started as a meme. Then the meme became a world. Step inside TOEZLANDIA — build your kingdom, complete quests, earn Footprints, climb the realm rankings.">
+<meta property="og:title" content="TOEZLANDIA · Ten Toez Down">
+<meta property="og:description" content="The meme became a kingdom. Step inside TOEZLANDIA.">
+<meta property="og:image" content="assets/toezlandia-great-gate.jpg">
+<meta property="og:url" content="https://toezogtoeken.xyz">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOEZLANDIA — cinematic scroll experience
+   Architecture notes:
+   - Everything defaults to VISIBLE/OPEN in plain CSS. JS adds `.js` to
+     <body> before painting, which is what arms the hidden/closed states.
+     So if JS fails, dies, or is blocked, nobody is ever trapped behind a
+     shut gate or an un-revealed section.
+   - All scroll work happens in ONE rAF loop reading cached rects.
+   - Motion is transform/opacity only. No layout thrash, no WebGL.
+   ============================================================ */
+
+:root{
+  --ink:#14101A;
+  --ink-2:#1C1524;
+  --stone:#2A2233;
+  --gold:#E9B84C;
+  --gold-hi:#FFD98A;
+  --gold-lo:#C89B3C;
+  --purple:#6B3FA0;
+  --purple-lo:#4B2A6F;
+  --ember:#FF8A3D;
+  --parch:#F2E6CC;
+  --muted:#B6A9C4;
+  --maxw:1160px;
+  --nav-h:60px;      /* real nav height; every sticky pin offsets by this */
+  --pin-h:calc(100svh - var(--nav-h));
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--parch);
+  font-family:'Manrope',system-ui,-apple-system,sans-serif;
+  line-height:1.6;
+  overscroll-behavior-y:none;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+
+h1,h2,h3,.display{font-family:'Cinzel',Georgia,serif;font-weight:700;letter-spacing:.01em;line-height:1.08;margin:0}
+.eyebrow{
+  font-family:'Manrope',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+  margin:0 0 14px;
+}
+p{margin:0 0 16px}
+.lede{font-size:16px;color:#E4D8C4;max-width:46ch}
+.muted{color:var(--muted)}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+section{position:relative}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:52px;padding:14px 26px;border-radius:999px;
+  font-family:'Manrope',sans-serif;font-weight:800;font-size:14px;
+  letter-spacing:.09em;text-transform:uppercase;cursor:pointer;border:0;
+  transition:transform .25s cubic-bezier(.2,.8,.3,1), box-shadow .25s, background .25s;
+  will-change:transform;
+}
+.btn--gold{
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold-lo));
+  color:#231803;box-shadow:0 10px 30px rgba(233,184,76,.28);
+}
+.btn--ghost{
+  background:rgba(255,255,255,.04);color:var(--parch);
+  border:1px solid rgba(233,184,76,.35);backdrop-filter:blur(6px);
+}
+.btn:active{transform:scale(.97)}
+@media (hover:hover){
+  .btn--gold:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(233,184,76,.4)}
+  .btn--ghost:hover{background:rgba(233,184,76,.12);transform:translateY(-2px)}
+}
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:90;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;transition:background .3s, backdrop-filter .3s, border-color .3s;
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:rgba(20,16,26,.82);backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  border-bottom-color:rgba(233,184,76,.18);
+}
+.nav__brand{display:flex;align-items:center;gap:9px;font-family:'Cinzel';font-weight:700;font-size:15px;letter-spacing:.06em}
+.nav__brand img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.nav .btn{min-height:40px;padding:10px 16px;font-size:11px}
+/* the nav CTA yields when the big final conversion CTA is on screen, so two
+   dominant ENTER buttons never stack on one phone screen */
+.nav__cta-hidden{opacity:0;pointer-events:none;transform:translate3d(0,-6px,0)}
+#navCta{transition:opacity .45s ease, transform .45s ease}
+
+/* ---------- atmosphere layer (global floating world elements) ---------- */
+.atmos{position:fixed;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.atmo{
+  position:absolute;top:0;left:0;will-change:transform;
+  border-radius:50%;background:rgba(233,184,76,.7);
+  box-shadow:0 0 8px rgba(233,184,76,.55);
+}
+.atmo--glyph{
+  background:none;box-shadow:none;border-radius:0;
+  display:grid;place-items:center;line-height:1;
+  filter:saturate(.75);
+}
+
+/* ---------- generic scene / sticky pin ---------- */
+.scene{position:relative}
+.scene__pin{
+  position:sticky;top:var(--nav-h);
+  /* NO var() in these height declarations, deliberately. A declaration
+     containing var() whose substitution is invalid becomes "invalid at
+     computed-value time" and falls back to AUTO — it does NOT fall back to
+     the previous declaration. That silently collapsed every pin to its
+     content height. Literal values let the normal cascade work: an
+     unsupported unit is dropped at parse time and the line above wins. */
+  height:calc(100vh - 60px);
+  height:calc(100dvh - 60px);
+  height:calc(100svh - 60px);
+  min-height:420px;
+  overflow:hidden;display:grid;place-items:center;
+}
+/* Chapters blend into whatever came before instead of starting on a hard
+   edge — this is what removes the "SCENE / blank / SCENE" feeling. */
+.chapter .scene__pin::before{
+  content:'';position:absolute;inset:0 0 auto 0;height:20%;z-index:5;pointer-events:none;
+  background:linear-gradient(180deg,var(--ink),rgba(20,16,26,0));
+}
+.layer{position:absolute;inset:0;will-change:transform}
+.layer img{width:100%;height:100%;object-fit:cover}
+
+/* Gradients that protect legibility WITHOUT covering the art.
+   Directional and partial on purpose — never a full black sheet. */
+.veil-bottom{position:absolute;inset:auto 0 0 0;height:56%;
+  background:linear-gradient(180deg,rgba(20,16,26,0),rgba(20,16,26,.82) 72%,rgba(20,16,26,.95));pointer-events:none}
+.veil-top{position:absolute;inset:0 0 auto 0;height:34%;
+  background:linear-gradient(180deg,rgba(20,16,26,.72),rgba(20,16,26,0));pointer-events:none}
+.veil-radial{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 78% 62% at 50% 52%,rgba(20,16,26,0) 34%,rgba(20,16,26,.62) 100%)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden}
+.hero__bg{position:absolute;inset:-6% -4%;will-change:transform}
+.hero__bg img{width:100%;height:100%;object-fit:cover;object-position:50% 42%}
+body.motion-on .hero__bg img{animation:breathe 22s ease-in-out infinite alternate}
+@keyframes breathe{from{transform:scale(1.04)}to{transform:scale(1.12)}}
+
+.rays{position:absolute;inset:-30%;pointer-events:none;opacity:.42;
+  background:
+    conic-gradient(from 200deg at 60% 12%,
+      rgba(255,217,138,0) 0deg, rgba(255,217,138,.16) 12deg, rgba(255,217,138,0) 26deg,
+      rgba(255,217,138,0) 50deg, rgba(255,217,138,.11) 62deg, rgba(255,217,138,0) 78deg,
+      rgba(255,217,138,0) 360deg);
+  mix-blend-mode:screen;}
+body.motion-on .rays{animation:rayturn 46s linear infinite}
+@keyframes rayturn{to{transform:rotate(360deg)}}
+
+.fog{position:absolute;inset:auto -20% -8% -20%;height:62%;pointer-events:none;opacity:.5;
+  background:
+    radial-gradient(60% 100% at 20% 100%,rgba(198,180,220,.30),transparent 70%),
+    radial-gradient(52% 96% at 72% 100%,rgba(233,184,76,.16),transparent 72%);
+  filter:blur(6px);mix-blend-mode:screen}
+body.motion-on .fog{animation:fogdrift 34s ease-in-out infinite alternate}
+@keyframes fogdrift{from{transform:translate3d(-4%,0,0)}to{transform:translate3d(5%,-2%,0)}}
+
+.hero__inner{position:relative;z-index:5;height:100%;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 20px calc(46px + env(safe-area-inset-bottom));max-width:var(--maxw);margin:0 auto}
+.hero h1{font-size:clamp(38px,12.5vw,86px);line-height:.94;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+.hero h1 .gold{color:var(--gold-hi);display:block}
+.hero__sub{font-size:clamp(15px,4vw,19px);color:#E8DCC8;margin-top:16px;max-width:30ch;
+  text-shadow:0 2px 14px rgba(0,0,0,.7)}
+.scrollcue{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:6;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(242,230,204,.6)}
+body.motion-on .scrollcue{animation:cue 2.4s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:translate(-50%,0);opacity:.5}50%{transform:translate(-50%,7px);opacity:1}}
+
+/* ---------- reveal primitives (default = VISIBLE) ---------- */
+.reveal{opacity:1;transform:none}
+body.js .reveal{opacity:0;transform:translate3d(0,26px,0);
+  transition:opacity .9s cubic-bezier(.2,.8,.3,1), transform .9s cubic-bezier(.2,.8,.3,1)}
+body.js .reveal.visible{opacity:1;transform:none}
+body.js .reveal[data-delay="1"]{transition-delay:.12s}
+body.js .reveal[data-delay="2"]{transition-delay:.24s}
+body.js .reveal[data-delay="3"]{transition-delay:.36s}
+
+/* letter-by-letter title */
+.ltr{display:inline-block;white-space:pre}
+body.js .ltr{opacity:0;transform:translate3d(0,.5em,0) rotate(3deg);
+  transition:opacity .5s ease, transform .6s cubic-bezier(.2,.8,.3,1)}
+body.js .visible .ltr{opacity:1;transform:none}
+
+/* parchment tear */
+.tear{position:relative;overflow:hidden}
+body.js .tear .tear__half{transition:transform 1.25s cubic-bezier(.2,.8,.25,1), opacity 1.25s}
+body.js .tear .tear__half--t{transform:translate3d(0,-100%,0) rotate(-1.4deg);opacity:0}
+body.js .tear .tear__half--b{transform:translate3d(0,100%,0) rotate(1.4deg);opacity:0}
+body.js .tear.visible .tear__half{transform:none;opacity:1}
+
+/* curtain split reveal */
+.curtain{position:relative;overflow:hidden}
+.curtain__panel{position:absolute;top:0;bottom:0;width:51%;background:linear-gradient(180deg,#241A31,#150F1E);z-index:4;
+  transition:transform 1.4s cubic-bezier(.16,.84,.26,1)}
+.curtain__panel--l{left:0;border-right:1px solid rgba(233,184,76,.25)}
+.curtain__panel--r{right:0;border-left:1px solid rgba(233,184,76,.25)}
+.curtain__panel{transform:translate3d(-101%,0,0)}
+.curtain__panel--r{transform:translate3d(101%,0,0)}
+body.js .curtain .curtain__panel--l{transform:translate3d(0,0,0)}
+body.js .curtain .curtain__panel--r{transform:translate3d(0,0,0)}
+body.js .curtain.visible .curtain__panel--l{transform:translate3d(-101%,0,0)}
+body.js .curtain.visible .curtain__panel--r{transform:translate3d(101%,0,0)}
+
+/* fog-clears-from-center (mask). If mask is unsupported the art simply
+   shows in full — the degradation is "no effect", never "hidden". */
+.fogmask img{transition:-webkit-mask-size 1.6s ease, mask-size 1.6s ease, filter 1.4s ease}
+body.js .fogmask img{
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 38%,transparent 72%);
+  mask-image:radial-gradient(circle at 50% 50%,#000 38%,transparent 72%);
+  -webkit-mask-size:130% 130%;mask-size:130% 130%;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  filter:blur(5px) saturate(.7);
+}
+body.js .fogmask.visible img{-webkit-mask-size:300% 300%;mask-size:300% 300%;filter:none}
+
+/* footprint-shaped mask reveal */
+.footmask img{transition:-webkit-mask-size 1.5s cubic-bezier(.3,.8,.3,1), mask-size 1.5s cubic-bezier(.3,.8,.3,1)}
+body.js .footmask img{
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130'><ellipse cx='50' cy='78' rx='31' ry='44' fill='%23000'/><ellipse cx='30' cy='23' rx='11' ry='14' fill='%23000'/><ellipse cx='51' cy='14' rx='9.5' ry='12' fill='%23000'/><ellipse cx='70' cy='19' rx='8' ry='10' fill='%23000'/><ellipse cx='84' cy='31' rx='6.5' ry='8' fill='%23000'/></svg>");
+  mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 130'><ellipse cx='50' cy='78' rx='31' ry='44' fill='%23000'/><ellipse cx='30' cy='23' rx='11' ry='14' fill='%23000'/><ellipse cx='51' cy='14' rx='9.5' ry='12' fill='%23000'/><ellipse cx='70' cy='19' rx='8' ry='10' fill='%23000'/><ellipse cx='84' cy='31' rx='6.5' ry='8' fill='%23000'/></svg>");
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:46% 46%;mask-size:46% 46%;
+}
+body.js .footmask.visible img{-webkit-mask-size:340% 340%;mask-size:340% 340%}
+
+/* crop → full viewport expand */
+.expand{transition:clip-path 1.3s cubic-bezier(.2,.8,.25,1), border-radius 1.3s ease}
+body.js .expand{clip-path:inset(16% 12% 16% 12% round 26px)}
+body.js .expand.visible{clip-path:inset(0% 0% 0% 0% round 0px)}
+
+/* banner pull-up */
+.banner-pull{transform-origin:50% 0%}
+body.js .banner-pull{transform:scaleY(.04);opacity:0;transition:transform 1.1s cubic-bezier(.2,.9,.25,1),opacity .7s}
+body.js .banner-pull.visible{transform:scaleY(1);opacity:1}
+
+/* gold tracing border */
+.trace{position:absolute;inset:0;pointer-events:none}
+.trace rect{fill:none;stroke:var(--gold);stroke-width:1.5;opacity:.85;
+  stroke-dasharray:var(--len,2000);stroke-dashoffset:var(--len,2000);
+  transition:stroke-dashoffset 2.4s cubic-bezier(.3,.7,.3,1)}
+body.js .visible .trace rect{stroke-dashoffset:0}
+
+/* ---------- THE GREAT GATE ----------
+   Three stacked layers:
+     realm__art    — ONE realm layer, behind the doors and travelled through
+     gate__env     — the great-gate artwork as surrounding architecture
+     doorway       — two physical timber doors, built in CSS so they stay
+                     crisp at any size and need no new artwork
+   The doors swing on their OUTER edges in perspective, so this reads as a
+   heavy entrance opening rather than two photographs sliding apart. */
+#gatewayJourney{height:340svh;height:340vh}
+@supports (height:100svh){#gatewayJourney{height:340svh}}
+@media (max-width:640px){#gatewayJourney{height:320svh;height:320vh}}
+
+.realm__art{position:absolute;inset:0;z-index:1;will-change:transform}
+.realm__art img{width:100%;height:100%;object-fit:cover;object-position:50% 42%}
+
+.handoff{position:absolute;inset:0;z-index:7;opacity:0;pointer-events:none;will-change:opacity}
+.handoff img{width:100%;height:100%;object-fit:cover}
+.gate__stage{position:absolute;inset:0;z-index:3;will-change:transform,opacity}
+.gate__env{position:absolute;inset:0;z-index:1}
+.gate__env img{width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+
+/* the arched opening the doors sit inside */
+.doorway{
+  position:absolute;left:7%;right:7%;top:9%;bottom:0;z-index:3;
+  border-radius:48% 48% 0 0 / 26% 26% 0 0;
+  overflow:hidden;
+  perspective:1500px;perspective-origin:50% 45%;
+  box-shadow:
+    0 0 0 6px rgba(30,26,38,.9),
+    0 0 0 12px rgba(58,50,70,.75),
+    0 0 60px 18px rgba(0,0,0,.55) inset;
+}
+@media (max-width:640px){.doorway{left:4.5%;right:4.5%;top:7%}}
+/* stone surround shading over the arch */
+.doorway__stone{
+  position:absolute;inset:0;z-index:9;pointer-events:none;
+  border-radius:inherit;
+  box-shadow:inset 0 0 70px rgba(0,0,0,.6), inset 0 22px 50px rgba(0,0,0,.5);
+}
+
+.door{
+  position:absolute;top:0;bottom:0;width:50.4%;
+  transform-style:preserve-3d;will-change:transform;
+  backface-visibility:hidden;
+}
+.door--l{left:0;transform-origin:left center}
+.door--r{right:0;transform-origin:right center}
+
+/* aged timber: plank seams, vertical grain, warm/dark variation */
+.door__face{
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,.62) 0 2px, rgba(0,0,0,.14) 2px 4px, rgba(0,0,0,0) 4px 13%),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255,.022) 0 3px, rgba(0,0,0,.05) 3px 8px),
+    linear-gradient(90deg,#2A190E,#43291824 30%,#40281799 55%,#22130A);
+  background-color:#3A2416;
+  box-shadow:inset 0 0 90px rgba(0,0,0,.7);
+}
+/* iron bands with rivets */
+.door__bands{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 8% 15.5%,#6E6A78 0 2.2px,transparent 2.4px),
+    radial-gradient(circle at 92% 15.5%,#6E6A78 0 2.2px,transparent 2.4px),
+    radial-gradient(circle at 8% 49.5%,#6E6A78 0 2.2px,transparent 2.4px),
+    radial-gradient(circle at 92% 49.5%,#6E6A78 0 2.2px,transparent 2.4px),
+    radial-gradient(circle at 8% 83.5%,#6E6A78 0 2.2px,transparent 2.4px),
+    radial-gradient(circle at 92% 83.5%,#6E6A78 0 2.2px,transparent 2.4px),
+    linear-gradient(180deg,
+      transparent 0 12%,   #221F29 12% 19%, transparent 19% 46%,
+      #221F29 46% 53%,     transparent 53% 80%,
+      #221F29 80% 87%,     transparent 87%);
+  opacity:.94;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.4);
+}
+/* oversized hinges along the outer edge */
+.door__hinges{position:absolute;top:0;bottom:0;width:17%}
+.door--l .door__hinges{left:0}
+.door--r .door__hinges{right:0}
+.door__hinges i{
+  position:absolute;height:6.4%;width:100%;
+  background:linear-gradient(180deg,#4A4654,#22202A 55%,#15131B);
+  box-shadow:0 2px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.12);
+  border-radius:3px;
+}
+.door--l .door__hinges i{border-radius:0 8px 8px 0}
+.door--r .door__hinges i{border-radius:8px 0 0 8px}
+.door__hinges i:nth-child(1){top:13%}
+.door__hinges i:nth-child(2){top:47%}
+.door__hinges i:nth-child(3){top:81%}
+/* gold TOEZ crest */
+.door__crest{
+  position:absolute;top:30%;width:34%;aspect-ratio:100/130;
+  color:var(--gold-lo);opacity:.62;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));
+}
+.door--l .door__crest{right:12%}
+.door--r .door__crest{left:12%}
+/* royal purple inlay + iron ring near the inner edge */
+.door__ring{
+  position:absolute;top:56%;width:13%;aspect-ratio:1;border-radius:50%;
+  border:3px solid #2A2732;
+  background:radial-gradient(circle at 40% 35%,#4B2A6F,#1B1524);
+  box-shadow:0 3px 8px rgba(0,0,0,.6), inset 0 1px 2px rgba(255,255,255,.14);
+}
+.door--l .door__ring{right:6%}
+.door--r .door__ring{left:6%}
+
+/* the crack of light — starts as a hairline, never floods the artwork */
+.gate__glow{
+  position:absolute;left:50%;top:0;bottom:0;width:3px;transform:translateX(-50%);
+  z-index:8;pointer-events:none;opacity:0;will-change:opacity,width;
+  background:linear-gradient(180deg,
+    rgba(255,240,200,0), rgba(255,240,200,.75) 18%,
+    rgba(255,255,255,.9) 50%, rgba(255,240,200,.75) 82%, rgba(255,240,200,0));
+  filter:blur(1.5px);
+  mix-blend-mode:screen;
+}
+
+.gate__copy{position:relative;z-index:10;text-align:center;padding:0 22px;will-change:transform,opacity}
+.gate__copy h2{font-size:clamp(30px,9.5vw,62px);text-shadow:0 6px 34px rgba(0,0,0,.85)}
+.gate__copy .big{display:block;margin-top:6px}
+.gate__meter{position:absolute;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  z-index:11;width:min(280px,72vw);text-align:center}
+.gate__meter span{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(242,230,204,.8);margin-bottom:9px;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.gate__track{height:2px;background:rgba(242,230,204,.2);border-radius:2px;overflow:hidden}
+.gate__fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));box-shadow:0 0 10px rgba(233,184,76,.7)}
+
+/* ---------- REALM OVERVIEW ---------- */
+/* #realm is gone — its content lives inside #gatewayJourney now. */
+.realm__art{position:absolute;inset:0;will-change:transform}
+.realm__art img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.realm__intro{position:absolute;left:0;right:0;z-index:8;text-align:center;padding:0 22px;opacity:0;will-change:transform,opacity}
+.realm__intro h2{font-size:clamp(28px,8.5vw,56px);text-shadow:0 6px 30px rgba(0,0,0,.7)}
+/* Chapter callouts: small plaques, NOT giant black cards. */
+.plaque{
+  position:absolute;z-index:7;max-width:min(320px,80vw);
+  padding:14px 18px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(28,21,36,.62),rgba(20,16,26,.5));
+  border:1px solid rgba(233,184,76,.3);
+  border-left:3px solid var(--gold);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  box-shadow:0 14px 40px rgba(0,0,0,.4);
+  opacity:0;transform:translate3d(0,18px,0) scale(.97);
+  transition:opacity .6s ease, transform .7s cubic-bezier(.2,.8,.3,1);
+  pointer-events:none;
+}
+.plaque.active{opacity:1;transform:none}
+.plaque h3{font-size:16px;color:var(--gold-hi);letter-spacing:.06em}
+.plaque p{font-size:12.5px;color:#E2D6C2;margin:5px 0 0;line-height:1.5}
+.plaque--a{left:6%;top:18%}
+.plaque--b{right:6%;top:30%}
+.plaque--c{left:8%;bottom:26%}
+.plaque--d{right:7%;bottom:32%}
+.plaque--e{left:50%;transform:translate(-50%,18px) scale(.97);bottom:20%;text-align:center;border-left-width:1px;border-top:3px solid var(--gold)}
+.plaque--e.active{transform:translate(-50%,0) scale(1)}
+@media (max-width:640px){
+  .plaque{max-width:78vw;padding:12px 14px}
+  .plaque--a{left:5%;top:15%}
+  .plaque--b{right:5%;top:27%}
+  .plaque--c{left:5%;bottom:30%}
+  .plaque--d{right:5%;bottom:34%}
+}
+
+/* ---------- chapters ---------- */
+/* Chapters overlap slightly so the next scene is already arriving as the
+   previous one leaves — continuous transitions, no dead gaps. */
+.chapter{position:relative;height:122vh;margin-top:-7vh}
+@media (max-width:640px){.chapter{height:112vh;margin-top:-6vh}}
+.chapter__bg{position:absolute;inset:-8% 0;will-change:transform}
+.chapter__bg img{width:100%;height:100%;object-fit:cover}
+.chapter__copy{position:relative;z-index:7;padding:0 22px;max-width:var(--maxw);margin:0 auto;width:100%}
+.chapter__copy h2{font-size:clamp(28px,8vw,54px);text-shadow:0 6px 28px rgba(0,0,0,.7)}
+.chapter__copy .lede{margin-top:14px;text-shadow:0 2px 14px rgba(0,0,0,.8)}
+.chapter--right .chapter__copy{text-align:right;margin-left:auto}
+.chapter--right .lede{margin-left:auto}
+
+/* ember / torch flicker layer */
+.embers{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+.ember{position:absolute;width:3px;height:3px;border-radius:50%;
+  background:radial-gradient(circle,#FFC46B,rgba(255,138,61,.1));
+  box-shadow:0 0 10px rgba(255,138,61,.8);will-change:transform,opacity}
+.torch{position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(42% 52% at 24% 34%,rgba(255,150,60,.28),transparent 70%),
+             radial-gradient(38% 48% at 78% 40%,rgba(255,170,80,.2),transparent 72%);
+  mix-blend-mode:screen}
+body.motion-on .torch{animation:flicker 4.2s ease-in-out infinite}
+@keyframes flicker{0%,100%{opacity:.85}22%{opacity:1}41%{opacity:.7}63%{opacity:.97}78%{opacity:.78}}
+
+/* water shimmer for port/falls */
+.shimmer{position:absolute;inset:auto 0 0 0;height:46%;pointer-events:none;z-index:2;opacity:.35;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 2px,transparent 2px 7px);
+  mix-blend-mode:screen}
+body.motion-on .shimmer{animation:shim 7s ease-in-out infinite alternate}
+@keyframes shim{from{transform:translate3d(0,0,0) scaleY(1)}to{transform:translate3d(0,-5px,0) scaleY(1.05)}}
+
+/* ---------- ambient world backdrop ----------
+   Stops long content stretches reading as a blank HTML background: faint
+   ridgeline + castle silhouette, soft royal bloom, drifting mist bands.
+   Deliberately near-invisible — depth, not decoration. */
+.worldbg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.worldbg__bloom{position:absolute;inset:0;
+  background:
+    radial-gradient(60% 42% at 18% 22%,rgba(107,63,160,.22),transparent 70%),
+    radial-gradient(52% 38% at 84% 68%,rgba(233,184,76,.10),transparent 72%),
+    radial-gradient(70% 50% at 50% 100%,rgba(75,42,111,.25),transparent 74%);
+}
+.worldbg__ridge{
+  position:absolute;left:-5%;right:-5%;bottom:0;height:46vh;opacity:.20;
+  background-repeat:no-repeat;background-position:bottom center;background-size:cover;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 420' preserveAspectRatio='none'><path d='M0 420 L0 250 L90 190 L170 240 L250 160 L330 225 L420 150 L470 190 L520 120 L560 165 L610 96 L660 160 L720 130 L800 205 L880 155 L960 220 L1050 175 L1130 235 L1200 200 L1200 420 Z' fill='%236B3FA0'/><g fill='%234B2A6F'><rect x='548' y='96' width='16' height='90'/><rect x='576' y='72' width='22' height='114'/><rect x='608' y='104' width='14' height='82'/><polygon points='548,96 556,70 564,96'/><polygon points='576,72 587,40 598,72'/><polygon points='608,104 615,80 622,104'/></g></svg>");
+}
+.worldbg__mist{
+  position:absolute;left:-30%;right:-30%;bottom:8vh;height:34vh;opacity:.30;
+  background:
+    radial-gradient(48% 100% at 24% 100%,rgba(198,180,220,.24),transparent 72%),
+    radial-gradient(44% 96% at 70% 100%,rgba(233,184,76,.12),transparent 74%);
+  filter:blur(10px);
+}
+body.motion-on .worldbg__mist{animation:mistband 48s ease-in-out infinite alternate}
+@keyframes mistband{from{transform:translate3d(-6%,0,0)}to{transform:translate3d(7%,-2%,0)}}
+
+/* ---------- content blocks ---------- */
+.block{padding:76px 0;position:relative;z-index:2}
+.block--tight{padding:64px 0}
+.block h2{font-size:clamp(26px,7vw,46px)}
+.split{display:grid;gap:34px;align-items:center}
+@media (min-width:860px){.split{grid-template-columns:1.05fr .95fr;gap:52px}}
+.frame{position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(233,184,76,.24);
+  box-shadow:0 26px 70px rgba(0,0,0,.5)}
+.frame img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3}
+/* Poster frames show the WHOLE artwork — no fixed height, no cover crop. */
+.frame--poster{background:#120E19}
+.frame--poster img{width:100%;height:auto;aspect-ratio:auto;object-fit:contain;display:block}
+
+/* product features */
+.feats{display:grid;gap:12px;margin-top:26px}
+@media (min-width:640px){.feats{grid-template-columns:1fr 1fr}}
+.feat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;
+  background:linear-gradient(180deg,rgba(43,32,58,.55),rgba(26,20,36,.45));
+  border:1px solid rgba(233,184,76,.16);border-left:3px solid var(--purple);
+  transition:transform .3s, border-color .3s, background .3s}
+@media (hover:hover){.feat:hover{transform:translateY(-3px);border-left-color:var(--gold);background:linear-gradient(180deg,rgba(56,42,74,.6),rgba(30,23,42,.5))}}
+.feat b{display:block;font-size:14px;color:var(--parch);font-weight:700}
+.feat span{font-size:12.5px;color:var(--muted);line-height:1.45}
+.feat i{font-style:normal;font-size:20px;line-height:1;flex:0 0 auto}
+
+/* gallery */
+.gallery{display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
+@media (min-width:860px){.gallery{grid-template-columns:repeat(3,1fr)}}
+.card{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(233,184,76,.2);
+  box-shadow:0 16px 44px rgba(0,0,0,.45);background:#1A1424;transition:transform .45s cubic-bezier(.2,.8,.3,1)}
+.card img{width:100%;aspect-ratio:1/1;object-fit:cover;transition:transform 5s ease-out}
+.card figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 12px 10px;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;color:#EADFCB;
+  background:linear-gradient(180deg,transparent,rgba(20,16,26,.88))}
+@media (hover:hover){
+  .card:hover{transform:translateY(-6px) rotate(-.6deg)}
+  .card:hover img{transform:scale(1.09)}
+}
+
+/* eatz */
+.eatz{display:grid;gap:10px;margin-top:24px}
+@media (min-width:640px){.eatz{grid-template-columns:1fr 1fr}}
+.eat{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:15px 18px;border-radius:12px;background:rgba(43,32,58,.42);
+  border:1px solid rgba(233,184,76,.16);transition:transform .3s,border-color .3s,background .3s}
+.eat b{font-family:'Cinzel';font-size:14px;letter-spacing:.04em}
+.eat span{font-size:11px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+@media (hover:hover){.eat:hover{transform:translateX(5px);border-color:rgba(233,184,76,.44);background:rgba(56,42,74,.5)}}
+
+/* market */
+.ca{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;
+  padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.34);
+  border:1px solid rgba(233,184,76,.26)}
+.ca code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--gold-hi);
+  word-break:break-all;flex:1;min-width:0}
+.ca button{flex:0 0 auto;min-height:38px;padding:8px 14px;font-size:11px}
+.chartbox{margin-top:22px;border-radius:14px;overflow:hidden;border:1px solid rgba(233,184,76,.2);background:#120E19}
+.chartbox iframe{width:100%;height:min(62vh,460px);border:0;display:block}
+.chart-load{padding:30px 20px;text-align:center}
+
+/* final */
+#final{height:104vh;margin-top:-6vh}
+.final__bg{position:absolute;inset:-6% 0;will-change:transform}
+.final__bg img{width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.final__inner{position:relative;z-index:7;text-align:center;padding:0 22px}
+.final__inner h2{font-size:clamp(30px,9vw,62px);line-height:1}
+.final__inner .sub{color:var(--gold-hi);font-family:'Cinzel';font-size:clamp(14px,4.4vw,20px);letter-spacing:.16em;margin-top:18px}
+
+footer{padding:44px 20px calc(36px + env(safe-area-inset-bottom));text-align:center;border-top:1px solid rgba(233,184,76,.14)}
+.social{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.social a{padding:9px 16px;border-radius:999px;border:1px solid rgba(233,184,76,.26);
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#E6DAC6;transition:background .25s,transform .25s}
+@media (hover:hover){.social a:hover{background:rgba(233,184,76,.14);transform:translateY(-2px)}}
+footer small{color:#7E7290;font-size:11px;display:block;line-height:1.8}
+
+
+/* ---------- reduced motion ----------
+   Kill transforms/animations but NEVER leave anything hidden or shut. */
+/* ============================================================
+   PREMIUM LAYER — the things that separate "good template" from
+   "this cost real money". All additive; none of it is load-bearing.
+   ============================================================ */
+
+/* ---------- 1 · cinematic preloader ----------
+   Shown ONLY if the inline <head> script ran (adds .preloading to <html>).
+   If JS is dead the class never lands and this never covers anything.
+   A hard 4s timeout in the main script force-removes it regardless. */
+.preloader{
+  position:fixed;inset:0;z-index:200;
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+.preloading .preloader{opacity:1;visibility:visible;pointer-events:auto}
+.preloader__half{
+  position:absolute;left:0;right:0;height:50.5%;
+  background:linear-gradient(180deg,#191322,#0F0B16);
+  transition:transform 1.15s cubic-bezier(.76,0,.24,1);
+}
+.preloader__half--t{top:0}
+.preloader__half--b{bottom:0}
+.preloader.done .preloader__half--t{transform:translate3d(0,-100%,0)}
+.preloader.done .preloader__half--b{transform:translate3d(0,100%,0)}
+.preloader__core{
+  position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  transition:opacity .5s ease;
+}
+.preloader.done .preloader__core{opacity:0}
+.preloader__mark{
+  font-family:'Cinzel';font-weight:700;font-size:clamp(22px,7vw,38px);
+  letter-spacing:.3em;color:var(--gold-hi);text-indent:.3em;
+}
+.preloader__rule{
+  width:min(220px,58vw);height:1px;margin:18px auto 14px;
+  background:rgba(233,184,76,.22);position:relative;overflow:hidden;
+}
+.preloader__rule i{
+  position:absolute;inset:0;transform-origin:0 50%;transform:scaleX(0);
+  background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi),var(--gold-lo));
+  box-shadow:0 0 14px rgba(233,184,76,.8);
+  transition:transform .9s cubic-bezier(.3,.8,.3,1);
+}
+.preloading .preloader__rule i{transform:scaleX(1)}
+.preloader__tag{
+  font-size:10px;letter-spacing:.34em;text-transform:uppercase;
+  color:rgba(242,230,204,.5);
+}
+
+/* ---------- 2 · film grain + vignette ----------
+   The single biggest "cinematic" tell. Very low opacity on purpose. */
+.grain{
+  position:fixed;inset:-150%;z-index:80;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='.9'/></svg>");
+}
+body.motion-on .grain{animation:grainshift .7s steps(3) infinite}
+@keyframes grainshift{
+  0%{transform:translate3d(0,0,0)}     33%{transform:translate3d(-3%,2%,0)}
+  66%{transform:translate3d(2%,-3%,0)} 100%{transform:translate3d(0,0,0)}
+}
+.vignette{
+  position:fixed;inset:0;z-index:79;pointer-events:none;
+  box-shadow:inset 0 0 min(180px,26vw) rgba(0,0,0,.62), inset 0 0 40px rgba(0,0,0,.3);
+}
+
+/* ---------- 3 · ambient colour grade ----------
+   Cross-fades a tint as you move scene to scene: torchlight warm in the
+   tavern, cold blue at the falls, gold in the hall. Sells "travel". */
+.grade{
+  position:fixed;inset:0;z-index:78;pointer-events:none;
+  mix-blend-mode:soft-light;opacity:.7;
+  background:rgba(107,63,160,.18);
+  transition:background 1.4s ease;
+}
+
+/* ---------- 4 · journey rail ---------- */
+.rail{
+  position:fixed;top:0;left:0;right:0;height:2px;z-index:95;pointer-events:none;
+  background:rgba(233,184,76,.12);
+}
+.rail__fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));
+  box-shadow:0 0 10px rgba(233,184,76,.9);
+}
+.rail__label{
+  position:fixed;top:calc(var(--nav-h) + 6px);right:14px;z-index:88;
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(233,184,76,.75);pointer-events:none;
+  opacity:0;transform:translate3d(0,-6px,0);
+  transition:opacity .5s ease, transform .5s ease;
+}
+.rail__label.on{opacity:1;transform:none}
+
+/* ---------- 5 · gold foil display type ---------- */
+.foil{
+  background:linear-gradient(100deg,
+    #A87B2A 0%, #E9B84C 18%, #FFF3C9 32%, #FFD98A 44%,
+    #C89B3C 60%, #FFE9AE 76%, #B98C33 100%);
+  background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+  text-shadow:none;
+}
+body.motion-on .foil{animation:foilsheen 7.5s ease-in-out infinite}
+@keyframes foilsheen{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+/* keep a readable fallback if background-clip:text is unsupported */
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  .foil{color:var(--gold-hi);-webkit-text-fill-color:var(--gold-hi)}
+}
+
+/* ---------- 6 · ghost chapter numerals ---------- */
+.chapter__numeral{
+  position:absolute;z-index:4;pointer-events:none;
+  font-family:'Cinzel';font-weight:800;line-height:.8;
+  font-size:clamp(150px,44vw,420px);
+  color:transparent;-webkit-text-stroke:1px rgba(233,184,76,.16);
+  top:8%;left:-2%;opacity:.9;will-change:transform;
+}
+.chapter--right .chapter__numeral{left:auto;right:-2%}
+@media (max-width:640px){.chapter__numeral{font-size:clamp(120px,50vw,240px);top:10%}}
+
+/* ---------- 7 · depth of field ----------
+   Background drops out of focus until its section is centred. Cheap
+   (transition, not per-frame filter) and reads as real camera work. */
+.dof img{transition:filter 1.5s cubic-bezier(.3,.8,.3,1), transform .9s ease}
+body.js .dof img{filter:blur(9px) saturate(.85)}
+body.js .dof.in img{filter:blur(0) saturate(1)}
+
+/* ---------- 8 · button shine + magnetism ---------- */
+.btn{position:relative;overflow:hidden}
+.btn--gold::after{
+  content:'';position:absolute;top:0;bottom:0;width:38%;
+  left:-60%;transform:skewX(-22deg);pointer-events:none;
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));
+}
+body.motion-on .btn--gold::after{animation:shine 5.5s ease-in-out infinite}
+@keyframes shine{0%,72%{left:-60%}88%,100%{left:120%}}
+
+/* ---------- 9 · refined details ---------- */
+::selection{background:rgba(233,184,76,.32);color:#fff}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px;border-radius:4px}
+@media (min-width:900px){
+  ::-webkit-scrollbar{width:10px}
+  ::-webkit-scrollbar-track{background:#120E19}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--gold-lo),var(--purple-lo));border-radius:10px;border:2px solid #120E19}
+}
+/* first-letter drop cap on origin copy — editorial touch */
+.dropcap::first-letter{
+  font-family:'Cinzel';font-size:3.1em;line-height:.82;float:left;
+  padding:4px 10px 0 0;color:var(--gold-hi);
+}
+
+/* ---------- reduced motion ----------
+   The scroll STORY is never disabled: sticky scenes, the Great Gate split,
+   the realm camera and scroll-linked parallax all still run, because those
+   are driven by the visitor's own scrolling rather than autonomous motion.
+   What softens here is the OPTIONAL continuous stuff that moves on its own
+   with no input — endless breathing, drifting fog, grain, sheen loops. */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  body.motion-on .hero__bg img,
+  body.motion-on .rays,
+  body.motion-on .fog,
+  body.motion-on .worldbg__mist,
+  body.motion-on .torch,
+  body.motion-on .shimmer,
+  body.motion-on .foil,
+  body.motion-on .btn--gold::after,
+  body.motion-on .grain,
+  body.motion-on .scrollcue{animation:none!important}
+  .grain{opacity:.03}
+  .preloader{display:none!important}
+}
+</style>
+<script>
+/* Arms the preloader before first paint. Deliberately inline and tiny: if
+   scripting is off or blocked, this never runs, .preloading never lands,
+   and the preloader stays invisible — nobody gets stuck behind a curtain. */
+try{ document.documentElement.classList.add('preloading'); }catch(e){}
+</script>
+</head>
+<body>
+
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__half preloader__half--t"></div>
+  <div class="preloader__half preloader__half--b"></div>
+  <div class="preloader__core">
+    <div>
+      <div class="preloader__mark">TOEZ</div>
+      <div class="preloader__rule"><i></i></div>
+      <div class="preloader__tag">Ten Toez Down</div>
+    </div>
+  </div>
+</div>
+
+<div class="worldbg" aria-hidden="true">
+  <div class="worldbg__bloom"></div>
+  <div class="worldbg__ridge"></div>
+  <div class="worldbg__mist"></div>
+</div>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grade" id="grade" aria-hidden="true"></div>
+<div class="rail" aria-hidden="true"><div class="rail__fill" id="railFill"></div></div>
+<div class="rail__label" id="railLabel" aria-hidden="true"></div>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="#top"><img src="assets/logo.png" alt="$TOEZ logo" width="30" height="30">$TOEZ</a>
+  <a class="btn btn--gold" id="navCta" href="https://t.me/TOEZLANDIABot" target="_blank" rel="noopener">Enter Toezlandia</a>
+</nav>
+
+<div class="atmos" id="atmos" aria-hidden="true"></div>
+
+<!-- ============ 1 · HERO ============ -->
+<header class="hero" id="top">
+  <div class="hero__bg" id="heroBg"><img src="assets/hero.jpg" alt="TOEZLANDIA" fetchpriority="high"></div>
+  <div class="rays" aria-hidden="true"></div>
+  <div class="fog" aria-hidden="true"></div>
+  <div class="veil-bottom" aria-hidden="true"></div>
+  <div class="veil-top" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <p class="eyebrow">Ten Toez Down</p>
+    <h1>The meme<span class="gold foil">became a world.</span></h1>
+    <p class="hero__sub">$TOEZ started as a joke in a group chat. TOEZLANDIA is the kingdom the community built around it.</p>
+    <div class="btn-row">
+      <a class="btn btn--gold" href="#gatewayJourney">Explore the kingdom</a>
+      <a class="btn btn--ghost" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Join the community</a>
+    </div>
+  </div>
+  <div class="scrollcue">Scroll</div>
+</header>
+
+<!-- ============ 2 · THE MEME BECAME A WORLD (parchment tear) ============ -->
+<section class="block">
+  <div class="wrap" style="text-align:center;max-width:760px">
+    <div class="tear reveal" data-reveal>
+      <div class="tear__half tear__half--t">
+        <p class="eyebrow" style="justify-content:center">Different Feet · Different Roads · Same Journey</p>
+        <h2 data-letters>The meme became a kingdom.</h2>
+      </div>
+      <div class="tear__half tear__half--b">
+        <p class="lede" style="margin:18px auto 0">We built the characters. We told the stories. We opened the gates.<br>Now people can actually step inside.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 · THE GREAT GATE ============ -->
+<!-- ============ 3+4 · THE GATEWAY JOURNEY ============
+     Gate and Realm are ONE pinned scene. The realm image is a single layer
+     that lives behind the closed doors and is still the same layer the
+     camera travels through afterwards — it never swaps, reloads or hands
+     off to a second copy, so there is no seam to spot and no gap to fall
+     into between the two phases. -->
+<section class="scene" id="gatewayJourney" data-grade="107,63,160">
+  <div class="scene__pin">
+
+    <!-- ONE realm layer for the whole journey -->
+    <div class="realm__art" id="realmArt"><img src="assets/toezlandia-realm-overview.jpg" alt="The realm of Toezlandia"></div>
+
+    <!-- entrance architecture + physical doors, removed once we pass through -->
+    <div class="gate__stage" id="gateArt">
+      <div class="gate__env"><img src="assets/toezlandia-great-gate.jpg" alt="The Great Gate of Toezlandia"></div>
+
+      <div class="doorway">
+        <div class="door door--l" id="gateLeft">
+          <div class="door__face"></div>
+          <div class="door__bands" aria-hidden="true"></div>
+          <div class="door__hinges" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="door__crest" aria-hidden="true">
+            <svg viewBox="0 0 100 130" width="100%" height="100%">
+              <g fill="none" stroke="currentColor" stroke-width="3">
+                <ellipse cx="50" cy="78" rx="29" ry="41"/><ellipse cx="30" cy="24" rx="10" ry="13"/>
+                <ellipse cx="51" cy="15" rx="9" ry="11"/><ellipse cx="70" cy="20" rx="7.5" ry="9.5"/>
+                <ellipse cx="84" cy="32" rx="6" ry="7.5"/>
+              </g>
+            </svg>
+          </div>
+          <div class="door__ring" aria-hidden="true"></div>
+        </div>
+
+        <div class="door door--r" id="gateRight">
+          <div class="door__face"></div>
+          <div class="door__bands" aria-hidden="true"></div>
+          <div class="door__hinges" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="door__crest" aria-hidden="true">
+            <svg viewBox="0 0 100 130" width="100%" height="100%">
+              <g fill="none" stroke="currentColor" stroke-width="3">
+                <ellipse cx="50" cy="78" rx="29" ry="41"/><ellipse cx="30" cy="24" rx="10" ry="13"/>
+                <ellipse cx="51" cy="15" rx="9" ry="11"/><ellipse cx="70" cy="20" rx="7.5" ry="9.5"/>
+                <ellipse cx="84" cy="32" rx="6" ry="7.5"/>
+              </g>
+            </svg>
+          </div>
+          <div class="door__ring" aria-hidden="true"></div>
+        </div>
+
+        <div class="gate__glow" id="gateGlow" aria-hidden="true"></div>
+        <div class="doorway__stone" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="veil-radial" aria-hidden="true" style="z-index:6"></div>
+    <div class="fog" aria-hidden="true" style="opacity:.30;z-index:6"></div>
+
+    <!-- phase 1 copy -->
+    <div class="gate__copy" id="gateCopy">
+      <p class="eyebrow">The Great Gate</p>
+      <h2>Enter<span class="big foil">Toezlandia</span></h2>
+      <p class="lede" style="margin:16px auto 0;text-align:center">A kingdom built from the people, stories and absurdity that made $TOEZ what it is.</p>
+    </div>
+
+    <div class="gate__meter" id="gateMeter">
+      <span>Scroll to open the gate</span>
+      <div class="gate__track"><div class="gate__fill" id="gateFill"></div></div>
+    </div>
+
+    <!-- phase 2 copy, over the SAME realm image -->
+    <div class="realm__intro" id="realmIntro">
+      <p class="eyebrow">Beyond the Gate</p>
+      <h2>One kingdom.<br>A lot of Toez.</h2>
+    </div>
+
+    <div class="plaque plaque--a realm-note" data-from=".775" data-to=".825">
+      <h3>The Village</h3><p>Where every kingdom begins.</p>
+    </div>
+    <div class="plaque plaque--b realm-note" data-from=".815" data-to=".865">
+      <h3>Market Toes</h3><p>Trade. Grow. Expand.</p>
+    </div>
+    <div class="plaque plaque--c realm-note" data-from=".855" data-to=".905">
+      <h3>ToeZport</h3><p>The realm keeps moving.</p>
+    </div>
+    <div class="plaque plaque--d realm-note" data-from=".895" data-to=".945">
+      <h3>Frosttoe Mountains</h3><p>The climb gets harder.</p>
+    </div>
+    <div class="plaque plaque--e realm-note" data-from=".935" data-to=".995">
+      <h3>The Royal Palace</h3><p>Built one step at a time.</p>
+    </div>
+
+    <!-- the Tavern is already arriving before the pin releases -->
+    <div class="handoff" id="gateHandoff" aria-hidden="true">
+      <img src="assets/toezlandia-tavern.jpg" alt="" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · CHAPTER I — THE TAVERN (fog clears from centre) ============ -->
+<section class="chapter" id="tavern" data-depth=".09" data-grade="200,110,45" data-numeral="I">
+  <div class="scene__pin">
+    <div class="chapter__bg fogmask reveal" data-reveal><img src="assets/toezlandia-tavern.jpg" alt="The Tavern" loading="lazy"></div>
+    <div class="torch" aria-hidden="true"></div>
+    <div class="embers" data-embers="14" aria-hidden="true"></div>
+    <div class="veil-bottom" aria-hidden="true"></div>
+    <div class="chapter__copy reveal" data-reveal data-delay="1" style="position:absolute;bottom:12%;left:0;right:0">
+      <p class="eyebrow">Chapter I · The Tavern</p>
+      <h2>Every kingdom<br>needs a story.</h2>
+      <p class="lede">TOEZLANDIA is a place with its own humor, characters and corners worth remembering.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 · CHAPTER II — TOEZPORT & TRADE (curtain split) ============ -->
+<section class="chapter chapter--right" id="port" data-depth=".13" data-grade="70,130,175" data-numeral="II">
+  <div class="scene__pin curtain reveal" data-reveal>
+    <div class="curtain__panel curtain__panel--l" aria-hidden="true"></div>
+    <div class="curtain__panel curtain__panel--r" aria-hidden="true"></div>
+    <div class="chapter__bg dof" data-pan="h"><img src="assets/toezlandia-port-trade.jpg" alt="ToeZport &amp; Trade" loading="lazy"></div>
+    <div class="shimmer" aria-hidden="true"></div>
+    <div class="fog" aria-hidden="true" style="opacity:.4"></div>
+    <div class="veil-bottom" aria-hidden="true"></div>
+    <div class="chapter__copy reveal" data-reveal data-delay="1" style="position:absolute;bottom:12%;left:0;right:0">
+      <p class="eyebrow">Chapter II · ToeZport &amp; Trade</p>
+      <h2>The realm<br>keeps moving.</h2>
+      <p class="lede">Trade opens. Materials matter. The world grows.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 · CHAPTER III — THE FALLS (footprint mask) ============ -->
+<section class="chapter" id="falls" data-depth=".16" data-grade="60,140,165" data-numeral="III">
+  <div class="scene__pin">
+    <div class="chapter__bg footmask reveal" data-reveal><img src="assets/toezlandia-falls.jpg" alt="Toezlandia Falls" loading="lazy"></div>
+    <div class="shimmer" aria-hidden="true" style="height:70%;opacity:.3"></div>
+    <div class="fog" aria-hidden="true"></div>
+    <div class="veil-bottom" aria-hidden="true"></div>
+    <div class="chapter__copy reveal" data-reveal data-delay="1" style="position:absolute;bottom:12%;left:0;right:0">
+      <p class="eyebrow">Chapter III · The Falls</p>
+      <h2>Different feet.<br>Same journey.</h2>
+      <p class="lede">Every player starts somewhere. Every kingdom grows one step at a time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 · CHAPTER IV — THE GREAT HALL (banner pull + gold trace) ============ -->
+<section class="chapter" id="hall" data-depth=".11" data-grade="210,150,60" data-numeral="IV">
+  <div class="scene__pin">
+    <div class="chapter__bg dof"><img src="assets/toezlandia-great-hall.jpg" alt="The Great Hall" loading="lazy"></div>
+    <div class="torch" aria-hidden="true"></div>
+    <div class="embers" data-embers="18" aria-hidden="true"></div>
+    <div class="veil-bottom" aria-hidden="true"></div>
+    <div class="chapter__copy reveal" data-reveal style="position:absolute;bottom:11%;left:0;right:0">
+      <p class="eyebrow">Chapter IV · The Great Hall</p>
+      <h2 data-letters>Your kingdom leaves a mark.</h2>
+      <div class="banner-pull reveal" data-reveal data-delay="1" style="position:relative;display:inline-block;margin-top:18px;padding:16px 22px;border-radius:12px;background:linear-gradient(180deg,rgba(75,42,111,.5),rgba(26,20,36,.5));border:1px solid rgba(233,184,76,.25)">
+        <svg class="trace" preserveAspectRatio="none" viewBox="0 0 300 120" aria-hidden="true"><rect x="1" y="1" width="298" height="118" rx="12" style="--len:840"/></svg>
+        <p class="lede" style="margin:0;font-size:14px">Titles. Records. Streaks.<br>Footprints. Realm rankings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9 · PRODUCT / MINI APP (crop → full expand) ============ -->
+<section class="block" id="build">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <p class="eyebrow reveal" data-reveal>Now playable</p>
+        <h2 class="reveal" data-reveal data-letters>You've seen the kingdom.<br>Now build yours.</h2>
+        <p class="lede reveal" data-reveal data-delay="1" style="margin-top:16px">TOEZLANDIA is a Telegram Mini App. Open it, claim a patch of the realm, and build it one step at a time.</p>
+        <div class="feats">
+          <div class="feat reveal" data-reveal><i>🏰</i><div><b>Build your Kingdom</b><span>Districts that grow while you're away.</span></div></div>
+          <div class="feat reveal" data-reveal data-delay="1"><i>📜</i><div><b>Complete quests</b><span>Daily and weekly goals worth returning for.</span></div></div>
+          <div class="feat reveal" data-reveal data-delay="2"><i>🔥</i><div><b>Build your streak</b><span>Show up. Keep the fire lit.</span></div></div>
+          <div class="feat reveal" data-reveal><i>👣</i><div><b>Leave Footprints</b><span>The one thing that never resets.</span></div></div>
+          <div class="feat reveal" data-reveal data-delay="1"><i>🏆</i><div><b>Climb Realm rankings</b><span>Strongest Toezlandia in the realm.</span></div></div>
+          <div class="feat reveal" data-reveal data-delay="2"><i>🗺️</i><div><b>Unlock the map</b><span>More of the kingdom, district by district.</span></div></div>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--gold" href="https://t.me/TOEZLANDIABot" target="_blank" rel="noopener">Open Toezlandia</a>
+        </div>
+      </div>
+      <div class="frame expand reveal" data-reveal>
+        <img src="assets/toezlandia-realm-overview.jpg" alt="Build your kingdom in Toezlandia" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 · ORIGIN ============ -->
+<section class="block" id="origin">
+  <div class="wrap">
+    <div class="split">
+      <div class="frame curtain reveal" data-reveal>
+        <div class="curtain__panel curtain__panel--l" aria-hidden="true"></div>
+        <div class="curtain__panel curtain__panel--r" aria-hidden="true"></div>
+        <img src="assets/origin.jpg" alt="Where $TOEZ started" loading="lazy">
+      </div>
+      <div>
+        <p class="eyebrow reveal" data-reveal>The Origin</p>
+        <h2 class="reveal" data-reveal>It started with a pedicure.</h2>
+        <p class="lede dropcap reveal" data-reveal data-delay="1" style="margin-top:16px">Then a group chat. Then a joke. Then the joke became a community. And somewhere along the way, the community started building a world.</p>
+        <p class="lede reveal" data-reveal data-delay="2"><strong style="color:var(--gold-hi)">$TOEZ was the first step. TOEZLANDIA is what came next.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 11 · GALLERY ============ -->
+<section class="block block--tight" id="gallery">
+  <div class="wrap">
+    <p class="eyebrow reveal" data-reveal>Postcards from the journey</p>
+    <h2 class="reveal" data-reveal style="margin-bottom:26px">Ten Toez Down.</h2>
+    <div class="gallery">
+      <figure class="card reveal" data-reveal><img src="assets/selfie.jpg" alt="The community" loading="lazy"><figcaption>The community</figcaption></figure>
+      <figure class="card reveal" data-reveal data-delay="1"><img src="assets/character.jpg" alt="The characters" loading="lazy"><figcaption>The characters</figcaption></figure>
+      <figure class="card reveal" data-reveal data-delay="2"><img src="assets/lambo.jpg" alt="The dream" loading="lazy"><figcaption>The dream</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 · TOEZ EATZ ============ -->
+<section class="block" id="eatz">
+  <div class="wrap">
+    <div class="split">
+      <div class="frame frame--poster reveal" data-reveal><img src="assets/foodtruck.jpg" alt="TOEZ EATZ menu" loading="lazy"></div>
+      <div>
+        <p class="eyebrow reveal" data-reveal>A roadside stop in TOEZ culture</p>
+        <h2 class="reveal" data-reveal>TOEZ EATZ</h2>
+        <p class="lede reveal" data-reveal data-delay="1" style="margin-top:14px">The food truck that gives flowers to the projects and people we cross paths with.</p>
+        <div class="eatz">
+          <a class="eat reveal" data-reveal href="https://x.com/planet_fatnessx" target="_blank" rel="noopener"><b>Phat Burger</b><span>Planet Fatness ↗</span></a>
+          <a class="eat reveal" data-reveal data-delay="1" href="https://x.com/NXTWaveLabs" target="_blank" rel="noopener"><b>NXT Wrap</b><span>NXT Wave ↗</span></a>
+          <a class="eat reveal" data-reveal data-delay="2" href="https://x.com/greencandleman" target="_blank" rel="noopener"><b>Green Candle Man Avocado Toast</b><span>Green Candle ↗</span></a>
+          <a class="eat reveal" data-reveal href="http://www.sargebot.xyz" target="_blank" rel="noopener"><b>Sarge Submarine</b><span>Sarge ↗</span></a>
+          <a class="eat reveal" data-reveal data-delay="1" href="https://x.com/rebate_tariff" target="_blank" rel="noopener"><b>Rebate Ribs</b><span>Rebate ↗</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13 · MARKET ============ -->
+<section class="block block--tight" id="market">
+  <div class="wrap" style="max-width:820px">
+    <p class="eyebrow reveal" data-reveal>The token</p>
+    <h2 class="reveal" data-reveal>$TOEZ</h2>
+    <p class="lede reveal" data-reveal data-delay="1" style="margin-top:14px">The first step, and still the ticket in. Contract below — always verify before you trade.</p>
+    <div class="ca reveal" data-reveal data-delay="1">
+      <code id="caText">3DRCui7ZbEykhrUHMbyXSvn5731fbKchFTFvs1Wjpump</code>
+      <button class="btn btn--ghost" id="copyCa">Copy</button>
+    </div>
+    <div class="btn-row reveal" data-reveal data-delay="2">
+      <a class="btn btn--gold" href="https://pump.fun/coin/3DRCui7ZbEykhrUHMbyXSvn5731fbKchFTFvs1Wjpump" target="_blank" rel="noopener">Pump.fun</a>
+      <a class="btn btn--ghost" href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Dexscreener</a>
+    </div>
+    <div class="chartbox reveal" data-reveal data-delay="2" id="chartBox">
+      <div class="chart-load">
+        <p class="muted" style="font-size:13px;margin:0 0 14px">Live chart loads on demand to keep the page fast on mobile.</p>
+        <button class="btn btn--ghost" id="loadChart">Load live chart</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14 · FINAL ============ -->
+<section id="final" data-grade="190,140,70">
+  <div class="scene__pin">
+    <div class="final__bg" id="finalBg"><img src="assets/toezlandia-great-hall.jpg" alt="Toezlandia" loading="lazy"></div>
+    <div class="torch" aria-hidden="true"></div>
+    <div class="embers" data-embers="16" aria-hidden="true"></div>
+    <div class="veil-radial" aria-hidden="true"></div>
+    <div class="veil-bottom" aria-hidden="true"></div>
+    <div class="final__inner reveal" data-reveal>
+      <h2 data-letters>Different feet. Different roads. Same journey.</h2>
+      <p class="sub foil">Ten Toez Down.</p>
+      <p class="lede" style="margin:16px auto 0;text-align:center">TOEZLANDIA — a kingdom built one step at a time.</p>
+      <div class="btn-row" style="justify-content:center">
+        <a class="btn btn--gold" href="https://t.me/TOEZLANDIABot" target="_blank" rel="noopener">Enter Toezlandia</a>
+        <a class="btn btn--ghost" href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Join Telegram</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="social">
+    <a href="https://t.me/ToezOGToeken" target="_blank" rel="noopener">Telegram</a>
+    <a href="https://x.com/toezogtoeken" target="_blank" rel="noopener">X</a>
+    <a href="https://www.tiktok.com/@toezogtoeken" target="_blank" rel="noopener">TikTok</a>
+    <a href="https://pump.fun/coin/3DRCui7ZbEykhrUHMbyXSvn5731fbKchFTFvs1Wjpump" target="_blank" rel="noopener">Pump.fun</a>
+    <a href="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp" target="_blank" rel="noopener">Dexscreener</a>
+  </div>
+  <small>
+    toezogtoeken.xyz · CA 3DRCui7ZbEykhrUHMbyXSvn5731fbKchFTFvs1Wjpump<br>
+    $TOEZ is a community meme token. Nothing here is financial advice.
+  </small>
+</footer>
+<script>
+(function(){
+  'use strict';
+
+  /* Arm the JS-only hidden/closed states. Everything above defaults to
+     visible in plain CSS, so this class is what *enables* the cinematics.
+     If this script throws before here, the page is simply a static site
+     with every image and gate fully visible — never a broken one. */
+  document.body.classList.add('js');
+
+  var prefersReduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* Core cinematic scroll motion is ALWAYS on. prefersReduced never disables
+     the story — it only softens optional continuous flourishes further down
+     (glyph velocity, ember counts, endless breathing). No activation control
+     exists anywhere on the page. */
+  var motionEnabled  = true;
+  var isMobile       = innerWidth < 720;
+
+  var $  = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var clamp = function(v,a,b){ return Math.max(a===undefined?0:a, Math.min(b===undefined?1:b, v)); };
+
+  var nav       = $('#nav');
+  var heroBg    = $('#heroBg');
+  var gate      = $('#gatewayJourney');
+  var gateArt   = $('#gateArt');
+  var gateLeft  = $('#gateLeft');
+  var gateRight = $('#gateRight');
+  var gateGlow  = $('#gateGlow');
+  var gateHandoff = $('#gateHandoff');
+  var gateCopy  = $('#gateCopy');
+  var gateFill  = $('#gateFill');
+  var gateMeter = $('#gateMeter');
+  var realmArt  = $('#realmArt');
+  var realmIntro= $('#realmIntro');
+  var realmNotes= $$('.realm-note');
+  var chapters  = $$('.chapter');
+  var finalSec  = $('#final');
+  var finalBg   = $('#finalBg');
+  var atmos     = $('#atmos');
+
+  /* ---------- broken-image safety ----------
+     If an asset is missing the layout should not keep a dead grey box. */
+  $$('img').forEach(function(img){
+    img.addEventListener('error', function(){
+      var fig = img.closest('figure, .frame');
+      if(fig) fig.style.display = 'none'; else img.style.display = 'none';
+    });
+  });
+
+  /* ---------- letter-by-letter titles ----------
+     Convert <br> to newline first, otherwise reading textContent would
+     silently drop author line breaks and collapse the heading. */
+  $$('[data-letters]').forEach(function(el){
+    var text = el.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+    text = text.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&#39;|&rsquo;/g,"'").trim();
+    var html = '';
+    var i = 0;
+    Array.prototype.forEach.call(text, function(ch){
+      if(ch === '\n'){ html += '<br>'; return; }
+      html += '<span class="ltr" style="transition-delay:' + (i*0.022).toFixed(3) + 's">' + (ch === ' ' ? '&nbsp;' : ch) + '</span>';
+      i++;
+    });
+    el.innerHTML = html;
+  });
+
+  /* ---------- gold trace border: set dash length from real geometry ---------- */
+  $$('.trace rect').forEach(function(r){
+    try{
+      var len = r.getTotalLength ? r.getTotalLength() : 0;
+      if(len) r.style.setProperty('--len', Math.ceil(len));
+    }catch(e){}
+  });
+
+  /* ---------- reveals ---------- */
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold:0.14, rootMargin:'0px 0px -40px 0px' });
+    $$('[data-reveal]').forEach(function(el){ io.observe(el); });
+  }else{
+    $$('[data-reveal]').forEach(function(el){ el.classList.add('visible'); });
+  }
+
+  /* ---------- floating world elements ----------
+     Depth tiers: foreground = bigger + faster, background = smaller + slower.
+     Glyphs are sparse on purpose; the bulk is plain gold dust. */
+  /* Depth-tiered world symbols. Kept sparse on purpose — roughly 8-14
+     visible at once, not a swarm. Castles and crowns are what make the
+     quiet stretches read as TOEZLANDIA rather than generic floating dots. */
+  var GLYPHS = ['👣','🏰','👑','🪙','🍂','🚩'];
+  var TIERS = [
+    /* background */ {op:[0.04,0.09], size:[8,13],  speed:[0.03,0.09], drift:[4,10],  glyph:0.55},
+    /* midground  */ {op:[0.08,0.15], size:[12,19], speed:[0.09,0.18], drift:[8,18],  glyph:0.45},
+    /* foreground */ {op:[0.10,0.20], size:[18,30], speed:[0.18,0.32], drift:[14,28], glyph:0.40}
+  ];
+  var particles = [];
+  function rnd(r){ return r[0] + Math.random()*(r[1]-r[0]); }
+  function buildAtmosphere(){
+    if(!atmos || !motionEnabled) return;
+    var count = isMobile ? 10 : 14;
+    if(prefersReduced) count = Math.round(count*0.5);   // softened, never removed
+    for(var i=0;i<count;i++){
+      var tier = TIERS[i % 3];
+      var p = document.createElement('i');
+      var op = rnd(tier.op);
+      if(Math.random() < tier.glyph){
+        p.className = 'atmo atmo--glyph';
+        p.textContent = GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
+        p.style.fontSize = rnd(tier.size).toFixed(1) + 'px';
+      }else{
+        p.className = 'atmo';
+        var sz = rnd(tier.size) * 0.22;
+        p.style.width = sz.toFixed(1)+'px';
+        p.style.height= sz.toFixed(1)+'px';
+        op *= 1.6;                                  // dust reads dimmer, lift it
+      }
+      p.style.opacity = op.toFixed(3);
+      particles.push({
+        el:p,
+        x: Math.random()*innerWidth,
+        y: Math.random()*innerHeight,
+        speed: rnd(tier.speed) * (prefersReduced ? 0.4 : 1),
+        drift: rnd(tier.drift) * (prefersReduced ? 0.35 : 1),
+        dir: Math.random() < 0.5 ? -1 : 1,          // mixed drift directions
+        phase: Math.random()*Math.PI*2,
+        rot: (Math.random()*70-35),
+        spin: (Math.random()*16-8) * (prefersReduced ? 0.3 : 1)
+      });
+      atmos.appendChild(p);
+    }
+  }
+
+  /* ---------- embers (per chapter) ---------- */
+  var embers = [];
+  function buildEmbers(){
+    if(!motionEnabled) return;
+    $$('[data-embers]').forEach(function(host){
+      var n = Math.round(Number(host.dataset.embers||12) * (isMobile ? 0.55 : 1) * (prefersReduced ? 0.4 : 1));
+      for(var i=0;i<n;i++){
+        var e = document.createElement('i');
+        e.className = 'ember';
+        host.appendChild(e);
+        embers.push({
+          el:e,
+          x: Math.random()*100,                  // %
+          y: 100 + Math.random()*40,             // %
+          rise: 0.06 + Math.random()*0.15,
+          phase: Math.random()*Math.PI*2,
+          host: host
+        });
+      }
+    });
+  }
+
+  /* ---------- scroll model ----------
+     Two upgrades over reading rects every frame:
+     1. Offsets are MEASURED ONCE (and on resize) instead of per-frame, so
+        the loop does zero layout reads — this is what keeps it smooth.
+     2. The scroll value is DAMPED. Parallax follows a smoothed value that
+        eases toward the real scroll position, which is what gives motion
+        weight instead of a twitchy 1:1 mapping. The page itself still
+        scrolls natively — we never hijack it, which would wreck iOS. */
+  var sy = window.pageYOffset || 0;   // smoothed
+  var syTarget = sy;
+  var vh = innerHeight;
+  var docH = 1;
+  var measured = [];
+
+  function measure(){
+    vh = innerHeight;
+    docH = Math.max(1, document.body.scrollHeight - vh);
+    measured = [];
+    var all = [gate, finalSec].concat(chapters);
+    all.forEach(function(el){
+      if(!el) return;
+      var r = el.getBoundingClientRect();
+      measured.push({
+        el: el,
+        top: r.top + window.pageYOffset,
+        h: r.height,
+        bg: el.querySelector('.chapter__bg'),
+        copy: el.querySelector('.chapter__copy'),
+        numeral: el.querySelector('.chapter__numeral'),
+        depth: Number(el.dataset.depth || 0.1),
+        grade: el.dataset.grade || null,
+        label: el.dataset.numeral ? (el.querySelector('.eyebrow') ? el.querySelector('.eyebrow').textContent.trim() : '') : (el.id || '')
+      });
+    });
+  }
+
+  function progressOf(m){
+    var total = m.h - vh;
+    if(total <= 0) return 0;
+    return clamp((sy - m.top) / total);
+  }
+  function centreOf(m){
+    return (m.top + m.h/2 - sy - vh/2) / Math.max(vh,1);
+  }
+
+  /* ---------- scroll progress for a pinned scene ---------- */
+  function sceneProgress(sec){
+    if(!sec) return 0;
+    var r = sec.getBoundingClientRect();
+    // the pin is offset by the nav and is that much shorter, so the usable
+    // scroll distance is the track height minus the PIN height
+    var pinH = vh - navH();
+    var total = r.height - pinH;
+    if(total <= 0) return 0;
+    return clamp((navH() - r.top) / total);
+  }
+  function navH(){
+    var v = getComputedStyle(document.documentElement).getPropertyValue('--nav-h');
+    var n = parseFloat(v);
+    return isNaN(n) ? 60 : n;
+  }
+
+  /* Motion starts immediately on load — zero taps, no activation control.
+     openGateStatically() is deliberately gone: the Great Gate must ALWAYS
+     begin closed and open only as the visitor scrolls its track. */
+  document.body.classList.add('motion-on');
+  buildAtmosphere();
+  buildEmbers();
+
+  /* ---------- the single rAF loop ---------- */
+  var raf = 0;
+  var t0 = performance.now();
+  var grade = $('#grade');
+  var railFill = $('#railFill');
+  var railLabel = $('#railLabel');
+  var curGrade = '';
+  var curLabel = '';
+
+  function frame(){
+    raf = 0;
+    var yReal = window.pageYOffset || 0;
+    syTarget = yReal;
+    // damping: lower = heavier. Skipped when the delta is tiny so we settle.
+    var d = syTarget - sy;
+    sy += Math.abs(d) < 0.4 ? d : d * 0.14;
+    var y = sy;
+    var t = performance.now() - t0;
+
+    if(nav) nav.classList.toggle('scrolled', yReal > 40);
+
+    // journey rail always runs, even without motion
+    if(railFill) railFill.style.width = (clamp(yReal/docH)*100).toFixed(2) + '%';
+
+    if(!motionEnabled) return;
+
+    /* hero — background drifts slower than the page (depth) */
+    if(heroBg && y < vh*1.5){
+      heroBg.style.transform = 'translate3d(0,' + (y*0.075).toFixed(2) + 'px,0)';
+    }
+
+    /* ================= THE GATEWAY JOURNEY =================
+       One progress value, one pinned viewport, one realm image:
+         0.00-0.12  doors dead shut — let them see the entrance
+         0.12-0.46  the physical opening (34% of the track, unhurried)
+         0.46-0.60  HOLD — doors parked, realm on show, no text in the way
+         0.60-0.70  walk through the doorway
+         0.70-0.78  "Beyond the Gate" over the same scene
+         0.78-0.98  travel the realm, district plaques
+         0.98-1.00  the Tavern is already arriving
+       ======================================================== */
+    if(gate){
+      var p = sceneProgress(gate);
+      if(p > -0.02 && p < 1.04){
+        var open = clamp((p - 0.12) / 0.34);
+        var ease = open < 0.5 ? 4*open*open*open : 1 - Math.pow(-2*open + 2, 3) / 2;
+        var thru = clamp((p - 0.60) / 0.10);          // through the doorway
+        var trav = clamp((p - 0.70) / 0.28);          // travelling the realm
+
+        // doors: swing open, park through the hold, then clear the frame
+        var swing = ease * 72;
+        var slide = ease * 46 + thru * 70;
+        if(gateLeft)  gateLeft.style.transform  =
+          'translate3d(' + (-slide).toFixed(2) + '%,0,0) rotateY(' + (-swing).toFixed(2) + 'deg)';
+        if(gateRight) gateRight.style.transform =
+          'translate3d(' + ( slide).toFixed(2) + '%,0,0) rotateY(' + ( swing).toFixed(2) + 'deg)';
+
+        // entrance architecture recedes only once we pass through
+        if(gateArt){
+          gateArt.style.opacity = (1 - thru).toFixed(3);
+          gateArt.style.transform = 'scale(' + (1.02 + ease*0.06 + thru*0.26).toFixed(4) + ')';
+        }
+
+        /* THE single realm layer — never swapped, never reloaded.
+           Barely visible behind shut doors, steady through the hold, then
+           the camera moves into it. */
+        if(realmArt){
+          var rScale = 1.03 + thru*0.08 + trav*0.06;
+          var rx = Math.sin(trav*Math.PI*1.05) * 4.2;
+          var ry = (trav - 0.5) * -4.5;
+          realmArt.style.transform =
+            'scale(' + rScale.toFixed(4) + ') translate3d(' + rx.toFixed(2) + '%,' + ry.toFixed(2) + '%,0)';
+          realmArt.style.opacity = (0.12 + ease*0.88).toFixed(3);
+        }
+
+        // thin crack of light only; gone once the doors are clear
+        if(gateGlow){
+          var lit = clamp((p - 0.09) / 0.06);
+          var bloom = Math.sin(clamp(ease/0.8)*Math.PI);
+          gateGlow.style.opacity = (Math.max(lit*0.5, bloom*0.55) * (1-thru)).toFixed(3);
+          gateGlow.style.width = (3 + ease*24).toFixed(1) + 'px';
+        }
+
+        // meter tracks the doors exactly, then retires
+        if(gateFill) gateFill.style.width = Math.round(ease*100) + '%';
+        if(gateMeter) gateMeter.style.opacity = (1 - clamp((p-0.44)/0.06)).toFixed(3);
+        if(gateCopy){
+          gateCopy.style.opacity = clamp(1 - Math.max(0,(p-0.07)/0.09)).toFixed(3);
+          gateCopy.style.transform = 'translate3d(0,' + (p*-18).toFixed(1) + 'px,0)';
+        }
+
+        // realm intro: in at 0.70, out as the districts begin
+        if(realmIntro){
+          var introIn = clamp((p - 0.70) / 0.05);
+          var introOut = clamp((p - 0.80) / 0.05);
+          realmIntro.style.opacity = (introIn * (1 - introOut)).toFixed(3);
+          realmIntro.style.transform = 'translate3d(0,' + ((1-introIn)*24 - trav*14).toFixed(1) + 'px,0)';
+        }
+
+        for(var n=0;n<realmNotes.length;n++){
+          var note = realmNotes[n];
+          var from = Number(note.dataset.from||0), to = Number(note.dataset.to||1);
+          note.classList.toggle('active', p >= from && p <= to);
+        }
+
+        // hand off to the Tavern before the pin releases — no dark gap
+        if(gateHandoff) gateHandoff.style.opacity = clamp((p - 0.955) / 0.045).toFixed(3);
+      }
+    }
+
+    /* CHAPTERS + FINAL — all from cached offsets, zero layout reads.
+       Also drives depth-of-field focus, ghost numerals, colour grade
+       and the chapter label on the journey rail. */
+    var nearestGrade = null, nearestDist = 1e9, nearestLabel = '';
+    for(var c=0;c<measured.length;c++){
+      var m = measured[c];
+      var centre = centreOf(m);
+      if(Math.abs(centre) < 1.6){
+        if(m.bg){
+          var tx = (m.bg.dataset.pan === 'h') ? centre * -6 : 0;
+          m.bg.style.transform = 'translate3d(' + tx.toFixed(2) + '%,' +
+            (centre*vh*m.depth).toFixed(1) + 'px,0) scale(1.14)';
+          m.bg.classList.toggle('in', Math.abs(centre) < 0.55);
+        }
+        if(m.copy) m.copy.style.transform = 'translate3d(0,' + (centre*-26).toFixed(1) + 'px,0)';
+        // numeral drifts opposite the art for extra separation
+        if(m.numeral) m.numeral.style.transform = 'translate3d(' + (centre*22).toFixed(1) + 'px,' + (centre*-54).toFixed(1) + 'px,0)';
+      }
+      if(m.grade){
+        var dist = Math.abs(centre);
+        if(dist < nearestDist){ nearestDist = dist; nearestGrade = m.grade; nearestLabel = m.label; }
+      }
+    }
+    if(grade && nearestGrade && nearestDist < 1.1 && nearestGrade !== curGrade){
+      curGrade = nearestGrade;
+      grade.style.background = 'rgba(' + nearestGrade + ',.2)';
+    }
+    if(railLabel && nearestLabel !== curLabel){
+      curLabel = nearestLabel;
+      railLabel.textContent = nearestLabel;
+      railLabel.classList.toggle('on', !!nearestLabel && nearestDist < 0.8);
+    }
+
+    /* FINAL background (kept on the cached path too) */
+    if(finalBg){
+      for(var f=0;f<measured.length;f++){
+        if(measured[f].el === finalSec){
+          var fc = centreOf(measured[f]);
+          if(Math.abs(fc) < 1.6) finalBg.style.transform = 'translate3d(0,' + (fc*vh*0.09).toFixed(1) + 'px,0) scale(1.12)';
+          break;
+        }
+      }
+    }
+
+    /* floating world elements — scroll parallax + independent drift */
+    var wrapH = vh + 140;
+    for(var i=0;i<particles.length;i++){
+      var p = particles[i];
+      var yy = p.y - y*p.speed + Math.sin(t/2200 + p.phase)*14;
+      var wrapped = ((yy % wrapH) + wrapH) % wrapH - 70;
+      var xx = p.x + Math.sin(t/2600 + p.phase)*p.drift*p.dir;
+      p.el.style.transform = 'translate3d(' + xx.toFixed(1) + 'px,' + wrapped.toFixed(1) + 'px,0) rotate(' + (p.rot + Math.sin(t/3400+p.phase)*p.spin).toFixed(1) + 'deg)';
+    }
+
+    /* embers rise inside their own chapter */
+    for(var e2=0;e2<embers.length;e2++){
+      var em = embers[e2];
+      var hostRect = em.host.getBoundingClientRect();
+      if(hostRect.bottom < 0 || hostRect.top > vh){ em.el.style.opacity = '0'; continue; }
+      var life = ((t/1000)*em.rise + em.phase) % 1.3;
+      var prog = life / 1.3;
+      em.el.style.opacity = (Math.sin(prog*Math.PI) * 0.85).toFixed(3);
+      em.el.style.transform = 'translate3d(' +
+        (em.x + Math.sin(t/1400 + em.phase)*5).toFixed(2) + 'vw,' +
+        (em.y - prog*130).toFixed(2) + '%,0)';
+    }
+  }
+
+  function request(){ if(!raf) raf = requestAnimationFrame(frame); }
+  addEventListener('scroll', request, {passive:true});
+  addEventListener('resize', function(){ isMobile = innerWidth < 720; measure(); request(); }, {passive:true});
+
+  /* Ghost chapter numerals (I / II / III / IV) */
+  chapters.forEach(function(ch){
+    var num = ch.dataset.numeral;
+    if(!num) return;
+    var el = document.createElement('div');
+    el.className = 'chapter__numeral';
+    el.setAttribute('aria-hidden','true');
+    el.textContent = num;
+    var pin = ch.querySelector('.scene__pin');
+    (pin || ch).appendChild(el);
+  });
+
+  measure();
+  // re-measure once fonts/images settle, since they change offsets
+  addEventListener('load', function(){ measure(); request(); });
+  setTimeout(measure, 1200);
+
+  /* ---------- preloader dismissal ----------
+     Belt and braces: whichever of these fires first wins, and the hard
+     timeout guarantees the curtain never stays down on a slow connection. */
+  (function(){
+    var pre = $('#preloader');
+    if(!pre) return;
+    var done = false;
+    function finish(){
+      if(done) return; done = true;
+      pre.classList.add('done');
+      document.documentElement.classList.remove('preloading');
+      setTimeout(function(){ if(pre.parentNode) pre.parentNode.removeChild(pre); }, 1400);
+      measure();
+    }
+    if(document.readyState === 'complete') setTimeout(finish, 650);
+    else addEventListener('load', function(){ setTimeout(finish, 450); });
+    setTimeout(finish, 4000);          // hard safety net
+  })();
+
+  /* ---------- magnetic buttons (pointer devices only) ---------- */
+  if(matchMedia('(hover:hover) and (pointer:fine)').matches && motionEnabled){
+    $$('.btn').forEach(function(b){
+      b.addEventListener('pointermove', function(e){
+        var r = b.getBoundingClientRect();
+        var mx = (e.clientX - r.left - r.width/2) / r.width;
+        var my = (e.clientY - r.top - r.height/2) / r.height;
+        b.style.transform = 'translate3d(' + (mx*9).toFixed(1) + 'px,' + (my*6 - 2).toFixed(1) + 'px,0)';
+      });
+      b.addEventListener('pointerleave', function(){ b.style.transform = ''; });
+    });
+  }
+
+  /* Embers and particles animate on their own clock, not only on scroll,
+     so the world keeps breathing while the visitor sits still. */
+  (function loop(){
+    if(motionEnabled && !document.hidden) frame();
+    requestAnimationFrame(loop);
+  })();
+
+  request();
+
+  /* ---------- nav CTA yields to the final conversion CTA ---------- */
+  (function(){
+    var navCta = $('#navCta'), fin = $('#final');
+    if(!navCta || !fin || !('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        navCta.classList.toggle('nav__cta-hidden', e.isIntersecting);
+      });
+    }, {threshold:0.22}).observe(fin);
+  })();
+
+  /* ---------- hero CTA scrolls into the journey ---------- */
+  (function(){
+    var link = document.querySelector('a[href="#gatewayJourney"]');
+    var target = $('#gatewayJourney');
+    if(!link || !target) return;
+    link.addEventListener('click', function(ev){
+      ev.preventDefault();
+      target.scrollIntoView({behavior: prefersReduced ? 'auto' : 'smooth', block:'start'});
+    });
+  })();
+
+  /* ---------- copy CA ---------- */
+  var copyBtn = $('#copyCa');
+  if(copyBtn){
+    copyBtn.addEventListener('click', function(){
+      var text = ($('#caText')||{}).textContent || '';
+      var done = function(){
+        var old = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        setTimeout(function(){ copyBtn.textContent = old; }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+      }else fallback();
+      function fallback(){
+        try{
+          var ta = document.createElement('textarea');
+          ta.value = text; ta.setAttribute('readonly','');
+          ta.style.position='fixed'; ta.style.opacity='0';
+          document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+          done();
+        }catch(e){ copyBtn.textContent = 'Copy failed'; }
+      }
+    });
+  }
+
+  /* ---------- chart on demand (keeps mobile fast) ---------- */
+  var loadChart = $('#loadChart');
+  if(loadChart){
+    loadChart.addEventListener('click', function(){
+      var box = $('#chartBox');
+      if(!box) return;
+      box.innerHTML = '<iframe src="https://dexscreener.com/solana/4ymwaWu1bRSNmRAo5tBTZTdgBtByPdtysNtonf3tMirp?embed=1&theme=dark" loading="lazy" title="$TOEZ live chart"></iframe>';
+    });
+  }
+})();
+</script>
+</body>
+</html>
