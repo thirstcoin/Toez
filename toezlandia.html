@@ -1342,33 +1342,134 @@ async function startWalletLink(){
   }catch(e){ toast(e.message); }
 }
 async function connectWallet(){
+
   if(MODE!=='server') return;
+
   const provider = getSolanaProvider();
+
   if(!provider){ startWalletLink(); return; }
+
   try{
+
     const resp = await provider.connect();
+
     const pubkey = (resp && resp.publicKey) ? resp.publicKey : provider.publicKey;
+
     const address = pubkey.toString();
+
     const ch = await Api.post('/api/wallet/challenge', {address});
+
     const encoded = new TextEncoder().encode(ch.message);
+
     const signed = await provider.signMessage(encoded, 'utf8');
+
     const sigBytes = signed && signed.signature ? signed.signature : signed;
+
     const signature = base58Encode(sigBytes instanceof Uint8Array ? sigBytes : new Uint8Array(sigBytes));
+
     await Api.post('/api/wallet/verify', {address, nonce:ch.nonce, signature});
+
     toast('Wallet verified.');
+
     await loadSeasonInfo();
+
     renderAll();
+
   }catch(e){ toast((e&&e.message) || 'Wallet connection was cancelled.'); }
+
 }
+
+function changeWallet(){
+
+  if(MODE!=='server') return;
+
+  sheetHTML(`
+
+    <h2>Change wallet</h2>
+
+    <p class="sub">Verify a different Solana wallet for your TOEZLANDIA kingdom.</p>
+
+    <div class="card">
+
+      <h3>Your current wallet stays connected</h3>
+
+      <p>
+
+        Nothing changes until another wallet is successfully verified.
+
+        If you cancel or verification fails, your current wallet remains connected.
+
+      </p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Before continuing</h3>
+
+      <p>
+
+        Make sure the wallet you want to use is selected in Phantom or Solflare
+
+        before you approve and sign.
+
+      </p>
+
+    </div>
+
+    <button class="act"
+
+      style="width:100%"
+
+      onclick="startWalletLink()">
+
+      Verify a new wallet
+
+    </button>
+
+    <button class="act ghost"
+
+      style="width:100%;margin-top:8px"
+
+      onclick="closeSheet()">
+
+      Cancel
+
+    </button>
+
+  `);
+
+}
+
 function walletCardHTML(){
   if(MODE!=='server') return '';
+
   const connected = SEASON_INFO && SEASON_INFO.walletConnected;
   const addr = connected ? SEASON_INFO.wallet : null;
   const short = addr ? addr.slice(0,4)+'…'+addr.slice(-4) : null;
+
   return `<div class="card" style="border-left-color:${connected?'var(--jade)':'var(--purple-lo)'}">
     <h3>${connected?'Wallet verified':'Connect a reward wallet'}</h3>
-    <p>${connected?`Redemptions pay out to ${short}.`:'Verify a Solana wallet to trade Footprints for reward shares.'}</p>
-    ${connected?'':`<button class="act" style="width:100%;margin-top:8px" onclick="connectWallet()">Connect Phantom / Solflare</button>`}
+
+    <p>${
+      connected
+        ? `Redemptions pay out to ${short}.`
+        : 'Verify a Solana wallet to trade Footprints for reward shares.'
+    }</p>
+
+    ${
+      connected
+        ? `<button class="act ghost"
+            style="width:100%;margin-top:8px"
+            onclick="changeWallet()">
+            Change wallet
+          </button>`
+        : `<button class="act"
+            style="width:100%;margin-top:8px"
+            onclick="connectWallet()">
+            Connect Phantom / Solflare
+          </button>`
+    }
   </div>`;
 }
 
