@@ -333,10 +333,9 @@ footer{padding:18px 14px calc(env(safe-area-inset-bottom) + 12px);text-align:cen
           <button class="act ghost" id="btnRedraw">Refresh card</button>
           <button class="act" id="btnSaveCard">Save image</button>
         </div>
-        <div class="grid2" style="margin-top:8px">
-          <button class="act ghost" id="btnShareX">Share to X</button>
-          <button class="act ghost" id="btnShareTG">Share to Telegram</button>
-        </div>
+        <div style="margin-top:8px">
+  <button class="act ghost" id="btnShareKingdom" style="width:100%">Share Kingdom</button>
+</div>
         <p class="small" style="text-align:center;margin:8px 0 0">Share your kingdom and bring more Toez into the realm.</p>
       </div>
       <footer>
@@ -1415,32 +1414,42 @@ function shareUrl(){
 }
 async function shareKingdomNative(){
   try{
+    drawCard();
+
     const c = $('#cardCanvas');
-    const blob = await new Promise(resolve=>c.toBlob(resolve,'image/png'));
-    if(!blob || !navigator.share) return false;
-    const file = new File([blob],'toezlandia-kingdom.png',{type:'image/png'});
-    const data = {text:kingdomShareText(),url:shareUrl()};
-    if(!navigator.canShare || navigator.canShare({files:[file]})) data.files=[file];
-    await navigator.share(data);
-    return true;
+    const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'));
+
+    if(!blob){
+      toast('Could not create the kingdom card.');
+      return;
+    }
+
+    const file = new File(
+      [blob],
+      'toezlandia-kingdom.png',
+      {type:'image/png'}
+    );
+
+    if(
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({files:[file]})
+    ){
+      await navigator.share({
+        files:[file],
+        text:kingdomShareText()
+      });
+      return;
+    }
+
+    toast('Image sharing is not supported here. Use Save image to share your card.');
   }catch(e){
-    if(e && e.name==='AbortError') return true;
-    return false;
+    if(e && e.name === 'AbortError') return;
+    toast('Could not open sharing. Use Save image to share your card.');
   }
 }
-$('#btnShareX').onclick = ()=>{
-  const text = kingdomShareText();
-  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl())}`;
-  if(window.Telegram?.WebApp?.openLink) Telegram.WebApp.openLink(url);
-  else window.open(url,'_blank','noopener,noreferrer');
-};
-$('#btnShareTG').onclick = async ()=>{
-  if(await shareKingdomNative()) return;
-  const url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl())}&text=${encodeURIComponent(kingdomShareText())}`;
-  if(window.Telegram?.WebApp?.openTelegramLink) Telegram.WebApp.openTelegramLink(url);
-  else if(window.Telegram?.WebApp?.openLink) Telegram.WebApp.openLink(url);
-  else window.open(url,'_blank','noopener,noreferrer');
-};
+
+$('#btnShareKingdom').onclick = shareKingdomNative;
 
 function renderAll(){ renderHead(); renderNodes(); renderQuests(); renderFestival(); renderRealm(); }
 
