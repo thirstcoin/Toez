@@ -1227,21 +1227,77 @@ function base58Encode(bytes){
 }
 function walletNoProviderHTML(){
   return `<h2>Connect a wallet</h2>
-    <p class="sub">Telegram's built-in browser can't talk to a wallet app directly.</p>
+    <p class="sub">Verify a Solana wallet with your TOEZLANDIA kingdom.</p>
+
     <div class="card">
-      <p style="margin:0 0 8px">Tap below to open a one-time link in your wallet's own browser — it connects and verifies for you, then you come back here.</p>
-      <p style="word-break:break-all;font-size:11px;color:var(--gold);background:rgba(0,0,0,.25);border-radius:8px;padding:8px;margin:0">${CURRENT_WALLET_LINK}</p>
+      <h3 style="margin:0 0 5px">Phantom</h3>
+      <p style="margin:0">
+        Tap below to open the secure one-time verification page inside Phantom.
+      </p>
+
+      <button class="act"
+        style="width:100%;margin-top:12px"
+        onclick="openWalletLinkInPhantom()">
+        Open in Phantom
+      </button>
+
+      <button class="act ghost"
+        style="width:100%;margin-top:8px"
+        onclick="copyWalletLink('Phantom')">
+        Copy verification link
+      </button>
+
+      <p class="small" style="margin:9px 0 0">
+        Android: if Phantom opens but the TOEZLANDIA verification page does not,
+        copy the verification link and paste it into Phantom's built-in browser.
+      </p>
     </div>
-    <button class="act" style="width:100%;margin-top:4px" onclick="openWalletLinkInPhantom()">Open in Phantom</button>
-    <button class="act ghost" style="width:100%;margin-top:8px" onclick="copyWalletLink()">Copy link for Solflare</button>
-    <p class="small" style="margin-top:10px">Expires in about 10 minutes and only works once. Come back here and tap Refresh once you've connected.</p>
-    <button class="act ghost" style="width:100%;margin-top:8px" onclick="closeSheet(); loadSeasonInfo().then(renderAll)">Refresh wallet status</button>`;
+
+    <div class="card">
+      <h3 style="margin:0 0 5px">Solflare</h3>
+      <p style="margin:0">
+        Copy the verification link, then open it inside Solflare's built-in browser.
+      </p>
+
+      <button class="act ghost"
+        style="width:100%;margin-top:10px"
+        onclick="copyWalletLink('Solflare')">
+        Copy link for Solflare
+      </button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 5px">Using Telegram Desktop?</h3>
+      <p style="margin:0">
+        Open TOEZLANDIA from the same Telegram account on your phone and connect
+        your wallet from the Realm tab.
+      </p>
+    </div>
+
+    <p class="small" style="margin-top:10px">
+      Verification links expire in about 10 minutes and work only once.
+      After signing, return here and tap Refresh wallet status.
+    </p>
+
+    <button class="act ghost"
+      style="width:100%;margin-top:8px"
+      onclick="closeSheet(); loadSeasonInfo().then(renderAll)">
+      Refresh wallet status
+    </button>`;
 }
+
 let CURRENT_WALLET_LINK = '';
-function copyWalletLink(){
-  if(navigator.clipboard) navigator.clipboard.writeText(CURRENT_WALLET_LINK).then(()=>toast('Link copied.'));
-  else toast('Copy not supported here — select the link text above manually.');
+
+function copyWalletLink(walletName){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(CURRENT_WALLET_LINK)
+      .then(()=>toast(`${walletName || 'Verification'} link copied.`))
+      .catch(()=>toast('Could not copy the link. Please try again.'));
+  }else{
+    toast('Copy is not supported in this browser.');
+  }
 }
+
 function openWalletLinkInPhantom(){
   // Phantom's documented "Browse" universal link: opens their own in-app
   // browser at an arbitrary URL. No signing/crypto handshake involved, so —
