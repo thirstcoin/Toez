@@ -1289,12 +1289,39 @@ function walletNoProviderHTML(){
 let CURRENT_WALLET_LINK = '';
 
 function copyWalletLink(walletName){
-  if(navigator.clipboard){
+  const copied = () => toast(`${walletName || 'Verification'} link copied.`);
+
+  if(navigator.clipboard && window.isSecureContext){
     navigator.clipboard.writeText(CURRENT_WALLET_LINK)
-      .then(()=>toast(`${walletName || 'Verification'} link copied.`))
-      .catch(()=>toast('Could not copy the link. Please try again.'));
+      .then(copied)
+      .catch(()=>fallbackCopy());
   }else{
-    toast('Copy is not supported in this browser.');
+    fallbackCopy();
+  }
+
+  function fallbackCopy(){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = CURRENT_WALLET_LINK;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+
+      if(ok){
+        copied();
+      }else{
+        toast('Could not copy the link. Please try again.');
+      }
+    }catch(e){
+      toast('Could not copy the link. Please try again.');
+    }
   }
 }
 
