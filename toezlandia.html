@@ -1406,12 +1406,12 @@ $('#btnSaveCard').onclick = ()=>{
 };
 
 function kingdomShareText(){
-  const kp = kingdomPower();
-  const title = titleFor(kp);
+  const kp = S.kp;
+  const title = titleFor(Math.max(S.peak||0,S.kp));
   return `I'm building my kingdom in TOEZLANDIA 🏰\n${fmt(kp)} Kingdom Power · ${title}\n\nThink you can build a stronger kingdom?\n\n#TOEZLANDIA #TOEZ`;
 }
 function shareUrl(){
-  return 'https://toezogtoken.xyz/toezlandia.html';
+  return 'https://toezogtoeken.xyz/toezlandia.html';
 }
 async function shareKingdomNative(){
   try{
