@@ -1093,7 +1093,13 @@ function renderHead(){
           || S.missionsW.some((m,i)=>!S.claimedW.includes(i) && progressOf(S,m,true)>=m.t)
           || STREAK_REWARDS.some(([d])=>S.streak>=d && !S.claimedStreak.includes(d));
   document.querySelector('[data-v="quests"]').classList.toggle('alert', dq);
-  document.querySelector('[data-v="realm"]').classList.toggle('alert', S.kp>=BALANCE.ASCEND_MIN_KP || S.footprints>0);
+  const realmAction =
+  S.kp >= BALANCE.ASCEND_MIN_KP ||
+  TALENTS.some(t => !S.talents.includes(t.id) && S.footprints >= t.cost) ||
+  S.footprints >= (PATHS.base + PATHS.step * S.paths) ||
+  (SEASON_INFO && SEASON_INFO.canRedeem);
+
+document.querySelector('[data-v="realm"]').classList.toggle('alert', realmAction);
 }
 const mmss = ms => { const s = Math.max(0,Math.floor(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
 
