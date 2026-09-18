@@ -1667,6 +1667,71 @@ async function shareKingdomNative(){
 
 $('#btnShareKingdom').onclick = shareKingdomNative;
 
+async function showShareDebug(){
+  try{
+    drawCard();
+
+    const c = $('#cardCanvas');
+    const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'));
+
+    let pngCanShare = false;
+
+    if(blob){
+      try{
+        const testFile = new File(
+          [blob],
+          'toezlandia-kingdom.png',
+          {type:'image/png'}
+        );
+
+        if(navigator.canShare){
+          pngCanShare = navigator.canShare({files:[testFile]});
+        }
+      }catch(e){}
+    }
+
+    const tg = window.Telegram?.WebApp;
+    const ua = navigator.userAgent || '';
+
+    const platform =
+      /android/i.test(ua) ? 'Android' :
+      /iphone|ipad|ipod/i.test(ua) ? 'iOS' :
+      'Other';
+
+    const debug = [
+      'TOEZ Share Debug',
+      '',
+      `Platform: ${platform}`,
+      `navigator.share: ${navigator.share ? 'YES' : 'NO'}`,
+      `navigator.canShare: ${navigator.canShare ? 'YES' : 'NO'}`,
+      `PNG canShare: ${pngCanShare ? 'YES' : 'NO'}`,
+      '',
+      `Telegram WebApp: ${tg ? 'YES' : 'NO'}`,
+      `shareToStory: ${tg && typeof tg.shareToStory === 'function' ? 'YES' : 'NO'}`,
+      `openTelegramLink: ${tg && typeof tg.openTelegramLink === 'function' ? 'YES' : 'NO'}`,
+      `Telegram version: ${tg?.version || 'unknown'}`
+    ].join('\n');
+
+    alert(debug);
+
+  }catch(e){
+    alert(
+      'TOEZ Share Debug\n\n' +
+      'Diagnostic failed: ' +
+      (e?.message || String(e))
+    );
+  }
+}
+
+const shareDebugBtn = document.createElement('button');
+shareDebugBtn.textContent = 'Share Debug';
+shareDebugBtn.className = 'act ghost';
+shareDebugBtn.style.width = '100%';
+shareDebugBtn.style.marginTop = '8px';
+shareDebugBtn.onclick = showShareDebug;
+
+$('#btnShareKingdom').insertAdjacentElement('afterend', shareDebugBtn);
+
 function renderAll(){ renderHead(); renderNodes(); renderQuests(); renderFestival(); renderRealm(); }
 
 /* ---- ambient motion ---- */
