@@ -1607,7 +1607,9 @@ async function shareKingdomNative(){
     drawCard();
 
     const c = $('#cardCanvas');
-    const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'));
+    const blob = await new Promise(resolve =>
+      c.toBlob(resolve, 'image/png')
+    );
 
     if(!blob){
       toast('Could not create the kingdom card.');
@@ -1620,179 +1622,93 @@ async function shareKingdomNative(){
       {type:'image/png'}
     );
 
-    // Existing working iPhone path.
-    if(
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare({files:[file]})
-    ){
-      await navigator.share({
-        files:[file],
-        text:kingdomShareText()
-      });
-      return;
-    }
+    const ua = navigator.userAgent || '';
+    const isAndroid = /android/i.test(ua);
 
-    // Android/WebView fallback: try the image share even if
-    // canShare() did not report file support correctly.
-    if(navigator.share){
-      try{
+    // Keep the existing working iPhone/native file-share path.
+    if(!isAndroid){
+      if(
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({files:[file]})
+      ){
         await navigator.share({
           files:[file],
           text:kingdomShareText()
         });
         return;
-      }catch(e){
-        if(e && e.name === 'AbortError') return;
-
-        // If image sharing truly is unsupported, at least open
-        // the native share sheet with the kingdom text/link.
-        try{
-          await navigator.share({
-            text:kingdomShareText()
-          });
-          return;
-        }catch(e2){
-          if(e2 && e2.name === 'AbortError') return;
-        }
       }
+
+      toast('Image sharing is not supported here. Use Save image to share your card.');
+      return;
     }
 
-    toast('Image sharing is not supported here. Use Save image to share your card.');
+    // Android Telegram WebView cannot hand the generated PNG
+    // directly to the native share sheet.
+    // Upload it temporarily, then hand sharing off to the browser.
+    toast('Preparing kingdom card...');
+
+    const response = await fetch(
+      API_BASE + '/api/toezlandia/share-card',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'image/png'
+        },
+        body:blob
+      }
+    );
+
+    if(!response.ok){
+      throw new Error('Kingdom card upload failed.');
+    }
+
+    const data = await response.json();
+
+    if(
+      !data ||
+      !data.id ||
+      !/^[a-f0-9]{32}$/.test(data.id)
+    ){
+      throw new Error('Invalid kingdom card response.');
+    }
+
+    const kp = S.kp;
+    const kingdomTitle = titleFor(
+      Math.max(S.peak || 0, S.kp)
+    );
+
+    const params = new URLSearchParams({
+      id:data.id,
+      kp:String(kp),
+      title:kingdomTitle
+    });
+
+    const handoffUrl =
+      'https://toezogtoeken.xyz/share-kingdom.html?' +
+      params.toString();
+
+    const tg = window.Telegram?.WebApp;
+
+    if(tg && typeof tg.openLink === 'function'){
+      tg.openLink(handoffUrl);
+      return;
+    }
+
+    window.location.href = handoffUrl;
+
   }catch(e){
     if(e && e.name === 'AbortError') return;
-    toast('Could not open sharing. Use Save image to share your card.');
+
+    console.error('Kingdom share error:',e);
+
+    toast(
+      'Could not prepare sharing. Use Save image to share your card.'
+    );
   }
 }
 
 $('#btnShareKingdom').onclick = shareKingdomNative;
-
-async function showShareDebug(){
-  try{
-    drawCard();
-
-    const c = $('#cardCanvas');
-    const blob = await new Promise(resolve => c.toBlob(resolve, 'image/png'));
-
-    let pngCanShare = false;
-
-    if(blob){
-      try{
-        const testFile = new File(
-          [blob],
-          'toezlandia-kingdom.png',
-          {type:'image/png'}
-        );
-
-        if(navigator.canShare){
-          pngCanShare = navigator.canShare({files:[testFile]});
-        }
-      }catch(e){}
-    }
-
-    const tg = window.Telegram?.WebApp;
-    const ua = navigator.userAgent || '';
-
-    const platform =
-      /android/i.test(ua) ? 'Android' :
-      /iphone|ipad|ipod/i.test(ua) ? 'iOS' :
-      'Other';
-
-    const debug = [
-      'TOEZ Share Debug',
-      '',
-      `Platform: ${platform}`,
-      `navigator.share: ${navigator.share ? 'YES' : 'NO'}`,
-      `navigator.canShare: ${navigator.canShare ? 'YES' : 'NO'}`,
-      `PNG canShare: ${pngCanShare ? 'YES' : 'NO'}`,
-      '',
-      `Telegram WebApp: ${tg ? 'YES' : 'NO'}`,
-      `shareToStory: ${tg && typeof tg.shareToStory === 'function' ? 'YES' : 'NO'}`,
-      `openTelegramLink: ${tg && typeof tg.openTelegramLink === 'function' ? 'YES' : 'NO'}`,
-      `Telegram version: ${tg?.version || 'unknown'}`
-    ].join('\n');
-
-    alert(debug);
-
-  }catch(e){
-    alert(
-      'TOEZ Share Debug\n\n' +
-      'Diagnostic failed: ' +
-      (e?.message || String(e))
-    );
-  }
-}
-
-const shareDebugBtn = document.createElement('button');
-shareDebugBtn.textContent = 'Share Debug';
-shareDebugBtn.className = 'act ghost';
-shareDebugBtn.style.width = '100%';
-shareDebugBtn.style.marginTop = '8px';
-shareDebugBtn.onclick = showShareDebug;
-
-$('#btnShareKingdom').insertAdjacentElement('afterend', shareDebugBtn);
-
-async function testAndroidNativeShare(){
-  try{
-    drawCard();
-
-    const c = $('#cardCanvas');
-    const blob = await new Promise(resolve =>
-      c.toBlob(resolve, 'image/png')
-    );
-
-    if(!blob){
-      alert('TEST FAILED: Canvas did not create PNG.');
-      return;
-    }
-
-    const file = new File(
-      [blob],
-      'toezlandia-kingdom.png',
-      {type:'image/png'}
-    );
-
-    if(!navigator.share){
-      alert('TEST FAILED: navigator.share is unavailable.');
-      return;
-    }
-
-    try{
-      await navigator.share({
-        files:[file],
-        text:kingdomShareText()
-      });
-
-      alert('TEST SUCCESS: Android accepted PNG + text.');
-      return;
-
-    }catch(e){
-      if(e && e.name === 'AbortError') return;
-
-      alert(
-        'ANDROID SHARE RESULT\n\n' +
-        'Name: ' + (e?.name || 'unknown') + '\n' +
-        'Message: ' + (e?.message || String(e))
-      );
-    }
-
-  }catch(e){
-    alert(
-      'ANDROID TEST ERROR\n\n' +
-      (e?.message || String(e))
-    );
-  }
-}
-
-const androidNativeTestBtn = document.createElement('button');
-androidNativeTestBtn.textContent = 'Android Native Share Test';
-androidNativeTestBtn.className = 'act ghost';
-androidNativeTestBtn.style.width = '100%';
-androidNativeTestBtn.style.marginTop = '8px';
-androidNativeTestBtn.onclick = testAndroidNativeShare;
-
-shareDebugBtn.insertAdjacentElement('afterend', androidNativeTestBtn);
-
 function renderAll(){ renderHead(); renderNodes(); renderQuests(); renderFestival(); renderRealm(); }
 
 /* ---- ambient motion ---- */
