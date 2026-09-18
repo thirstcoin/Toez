@@ -1620,6 +1620,7 @@ async function shareKingdomNative(){
       {type:'image/png'}
     );
 
+    // Existing working iPhone path.
     if(
       navigator.share &&
       navigator.canShare &&
@@ -1630,6 +1631,31 @@ async function shareKingdomNative(){
         text:kingdomShareText()
       });
       return;
+    }
+
+    // Android/WebView fallback: try the image share even if
+    // canShare() did not report file support correctly.
+    if(navigator.share){
+      try{
+        await navigator.share({
+          files:[file],
+          text:kingdomShareText()
+        });
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return;
+
+        // If image sharing truly is unsupported, at least open
+        // the native share sheet with the kingdom text/link.
+        try{
+          await navigator.share({
+            text:kingdomShareText()
+          });
+          return;
+        }catch(e2){
+          if(e2 && e2.name === 'AbortError') return;
+        }
+      }
     }
 
     toast('Image sharing is not supported here. Use Save image to share your card.');
