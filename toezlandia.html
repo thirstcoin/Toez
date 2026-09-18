@@ -1816,32 +1816,64 @@ function showMaintenanceScreen(){
 const INTRO_KEY = 'toezlandia_intro_seen';
 function introHTML(){
   const serverMode = MODE==='server';
-  return `<h2>Welcome to Toezlandia</h2>
-    <p class="sub">A kingdom built one step at a time.</p>
+
+  return `<h2>HOW TO PLAY TOEZLANDIA</h2>
+    <p class="sub">Build your kingdom. Make it stronger. Climb the leaderboard.</p>
+
     <div class="card">
-      <h3>Check in, don't camp out</h3>
-      <p>This isn't a game you sit and watch. Districts produce resources on their own, day and night. Check in a few times a day, spend what you've collected, upgrade your kingdom, and climb the leaderboard for the strongest Toezlandia in the realm.</p>
+      <h3>1. TAP A DISTRICT</h3>
+      <p>Start with <b>Toez Village</b>. Tap it on the map, then tap <b>UPGRADE</b>.</p>
     </div>
+
     <div class="card">
-      <h3>Reasons to come back</h3>
-      <p>Daily and weekly quests, a login streak, and festivals in Unity Square all pay out extra. Resources keep accruing even while you're away — check the Quests tab.</p>
+      <h3>2. EARN RESOURCES</h3>
+      <p>Your districts automatically make <b>Gold, Food, Materials and Community</b>. You keep earning while you're away.</p>
     </div>
+
     <div class="card">
-      <h3>One Step Further</h3>
-      <p>Once your kingdom is strong enough, the Realm tab lets you reset it for Footprints — a currency that never resets. Spend them on permanent talents that make every kingdom after this one stronger, or save them up: 20 Footprints can be traded for a Season 1 reward share, this season and future ones.</p>
+      <h3>3. KEEP UPGRADING</h3>
+      <p>Got enough resources? Upgrade again. More upgrades make your kingdom stronger and increase your <b>Kingdom Power</b>.</p>
     </div>
-    ${serverMode ? `<div class="card" style="border-left-color:var(--gold-lo)">
-      <h3>This one counts</h3>
-      <p>You're synced to the real ecosystem. ${seasonStatusLine()}</p>
+
+    <div class="card">
+      <h3>4. UNLOCK NEW DISTRICTS</h3>
+      <p>Save resources and open more of TOEZLANDIA. New districts give you more ways to grow your kingdom.</p>
+    </div>
+
+    <div class="card">
+      <h3>5. DO YOUR QUESTS</h3>
+      <p>Tap <b>QUESTS</b> at the bottom. Complete the Daily and Weekly tasks for extra <b>Kingdom Power</b>.</p>
+    </div>
+
+    <div class="card">
+      <h3>6. REACH 2,500 KINGDOM POWER</h3>
+      <p><b>Kingdom Power (KP)</b> is your main score. Build, upgrade and complete quests until you reach <b>2,500 KP</b>.</p>
+    </div>
+
+    <div class="card">
+      <h3>7. TAKE ONE STEP FURTHER</h3>
+      <p>At 2,500 KP, tap <b>REALM</b> at the bottom and choose <b>One Step Further</b>. Your kingdom starts over and you earn <b>Footprints</b>.</p>
+    </div>
+
+    <div class="card">
+      <h3>8. SPEND YOUR FOOTPRINTS</h3>
+      <p>Footprints buy permanent upgrades that make future kingdoms stronger. Then build again and climb even higher.</p>
+    </div>
+
+    <div class="card" style="border-left-color:var(--gold-lo)">
+      <h3>THAT'S IT</h3>
+      <p><b>UPGRADE → EARN → UNLOCK → QUEST → 2,500 KP → FOOTPRINTS → REPEAT</b></p>
+    </div>
+
+    ${serverMode ? `<div class="card" style="border-left-color:var(--jade)">
+      <h3>This kingdom counts</h3>
+      <p>You're connected to the real TOEZLANDIA ecosystem. ${seasonStatusLine()}</p>
     </div>` : `<div class="card" style="border-left-color:var(--gold-lo)">
       <h3>Preview mode</h3>
-      <p>You're playing a local preview — nothing here saves to the ecosystem yet. Open TOEZLANDIA through the Telegram bot to make it count.</p>
+      <p>This is a local preview. Open TOEZLANDIA through the Telegram bot for your kingdom to count.</p>
     </div>`}
-    <div class="card" style="border-left-color:var(--jade)">
-      <h3>🌿 Feet Up</h3>
-      <p>Sundays, 12:00–24:00 UTC, the kingdom rests — building pauses for everyone so nobody has to stay online to keep up. Resources still come in the whole time.</p>
-    </div>
-    <button class="act" style="width:100%;margin-top:4px" onclick="closeSheet()">Let's build</button>`;
+
+    <button class="act" style="width:100%;margin-top:4px" onclick="closeSheet()">GOT IT — LET ME BUILD</button>`;
 }
 function openIntro(){
   try{ localStorage.setItem(INTRO_KEY,'1'); }catch(e){}
