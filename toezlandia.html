@@ -1685,8 +1685,9 @@ async function shareKingdomNative(){
     });
 
     const handoffUrl =
-      'https://toezogtoeken.xyz/share-kingdom.html?' +
-      params.toString();
+  'https://toezogtoeken.xyz/share-kingdom.html?' +
+  params.toString() +
+  '&v=' + Date.now();
 
  const tg = window.Telegram?.WebApp;
 
