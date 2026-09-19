@@ -131,7 +131,9 @@ async function prepareCard(){
 
     if(!response.ok){
       if(response.status === 404){
-        throw new Error('This kingdom card has expired. Return to TOEZLANDIA and share it again.');
+        throw new Error(
+          'This kingdom card has expired. Return to TOEZLANDIA and share it again.'
+        );
       }
 
       throw new Error('Could not load your kingdom card.');
@@ -140,4 +142,127 @@ async function prepareCard(){
     const blob = await response.blob();
 
     if(!blob || blob.size < 100){
-      throw new Error('The
+      throw new Error('The kingdom card image could not be loaded.');
+    }
+
+    if(blob.type && blob.type !== 'image/png'){
+      throw new Error(
+        'Unexpected kingdom card type: ' + blob.type
+      );
+    }
+
+    kingdomFile = new File(
+      [blob],
+      'toezlandia-kingdom.png',
+      {
+        type:'image/png'
+      }
+    );
+
+    previewUrl = URL.createObjectURL(blob);
+
+    preview.src = previewUrl;
+    preview.style.display = 'block';
+
+    if(typeof navigator.share !== 'function'){
+      shareBtn.textContent = 'Sharing Not Supported';
+      shareBtn.disabled = true;
+
+      result.textContent =
+        'This browser does not provide the native share feature.';
+      return;
+    }
+
+    shareBtn.textContent = 'Share Kingdom Card';
+    shareBtn.disabled = false;
+
+    result.textContent = '';
+
+  }catch(e){
+    console.error('Kingdom card preparation error:', e);
+
+    shareBtn.textContent = 'Kingdom Card Unavailable';
+    shareBtn.disabled = true;
+
+    result.textContent =
+      e && e.message
+        ? e.message
+        : 'Could not prepare your kingdom card.';
+  }
+}
+
+shareBtn.addEventListener('click', async () => {
+  try{
+    if(!kingdomFile){
+      alert(
+        'SHARE TEST\n\n' +
+        'ERROR: Kingdom file is not ready.'
+      );
+      return;
+    }
+
+    const hasShare =
+      typeof navigator.share === 'function';
+
+    let canShareFile = false;
+
+    try{
+      canShareFile =
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({
+          files:[kingdomFile]
+        });
+    }catch(e){
+      canShareFile = false;
+    }
+
+    alert(
+      'SHARE TEST\n\n' +
+      'navigator.share: ' +
+      (hasShare ? 'YES' : 'NO') + '\n' +
+      'PNG canShare: ' +
+      (canShareFile ? 'YES' : 'NO') + '\n' +
+      'File type: ' +
+      kingdomFile.type + '\n' +
+      'File size: ' +
+      kingdomFile.size + ' bytes'
+    );
+
+    if(!hasShare){
+      return;
+    }
+
+    await navigator.share({
+      files:[kingdomFile],
+      text:shareText()
+    });
+
+    alert(
+      'SHARE RESULT\n\n' +
+      'SUCCESS'
+    );
+
+  }catch(e){
+    console.error('Kingdom share error:', e);
+
+    alert(
+      'SHARE RESULT\n\n' +
+      'Name: ' +
+      (e && e.name ? e.name : 'Unknown') + '\n' +
+      'Message: ' +
+      (e && e.message ? e.message : String(e))
+    );
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  if(previewUrl){
+    URL.revokeObjectURL(previewUrl);
+  }
+});
+
+prepareCard();
+</script>
+
+</body>
+</html>
