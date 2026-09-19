@@ -1706,13 +1706,13 @@ sheetHTML(`
     <p>Tap the button below. The kingdom card page should open and display your actual card.</p>
   </div>
 
-  <button
-    class="act"
-    style="width:100%;margin-top:4px"
-    onclick="window.location.href=${JSON.stringify(handoffUrl)}"
-  >
-    OPEN KINGDOM CARD TEST
-  </button>
+ <button
+  class="act"
+  style="width:100%;margin-top:4px"
+  onclick="window.Telegram.WebApp.openLink(${JSON.stringify(handoffUrl)})"
+>
+  OPEN KINGDOM CARD TEST
+</button>
 
   <button
     class="act ghost"
