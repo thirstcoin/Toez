@@ -1533,8 +1533,8 @@ let lbKind = 'growth';
 async function renderRank(){
   const rows = await Persistence.leaderboard(lbKind, S);
   $('#lbSub').textContent = lbKind==='growth'
-    ? 'Power added since Monday. Resets weekly, so a new kingdom can win it.'
-    : 'Lifetime Kingdom Power across every kingdom you have built.';
+  ? 'Kingdom Power added this week. Resets every Monday at 00:00 UTC.'
+  : 'Lifetime Kingdom Power across every kingdom you have built.';
   $('#lbList').innerHTML = rows.map((r,i)=>`
     <div class="lbrow ${r.me?'me':''}">
       <span class="rk">${i+1}</span>
