@@ -931,7 +931,16 @@ function rewardText(rw){
 }
 
 /* ---- ascension ---- */
-const footprintsFor = kp => Math.floor(Math.pow(Math.max(0,kp), BALANCE.FOOT_EXP)/BALANCE.FOOT_DIV);
+const footprintsFor = kp => {
+  const power = Math.max(0, kp);
+  if(power < BALANCE.ASCEND_MIN_KP) return 0;
+  return Math.max(
+    6,
+    Math.floor(
+      Math.pow(power, BALANCE.FOOT_EXP) / BALANCE.FOOT_DIV
+    )
+  );
+};
 async function ascend(){
   if(isKingdomClosed()) return closedToast();
   if(S.kp < BALANCE.ASCEND_MIN_KP) return;
