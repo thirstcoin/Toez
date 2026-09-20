@@ -1547,43 +1547,95 @@ async function renderRank(){
 function drawCard(){
   const c = $('#cardCanvas'), g = c.getContext('2d');
   const W = c.width, H = c.height;
+  const lifetime = lifetimeKP(S);
+  const current = S.kp;
+  const steps = S.ascensions || 0;
+  const footprints = S.footprints || 0;
+
   const bg = g.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#2B1940'); bg.addColorStop(.55,'#1B1029'); bg.addColorStop(1,'#120A1C');
-  g.fillStyle = bg; g.fillRect(0,0,W,H);
+  bg.addColorStop(0,'#2B1940');
+  bg.addColorStop(.55,'#1B1029');
+  bg.addColorStop(1,'#120A1C');
+  g.fillStyle = bg;
+  g.fillRect(0,0,W,H);
+
   if(mapImgEl.complete && mapImgEl.naturalWidth){
-    g.save(); g.globalAlpha = .3;
-    const s = Math.max(W/mapImgEl.naturalWidth, (H*.55)/mapImgEl.naturalHeight);
-    g.drawImage(mapImgEl, (W-mapImgEl.naturalWidth*s)/2, 0, mapImgEl.naturalWidth*s, mapImgEl.naturalHeight*s);
+    g.save();
+    g.globalAlpha = .3;
+    const s = Math.max(
+      W/mapImgEl.naturalWidth,
+      (H*.55)/mapImgEl.naturalHeight
+    );
+    g.drawImage(
+      mapImgEl,
+      (W-mapImgEl.naturalWidth*s)/2,
+      0,
+      mapImgEl.naturalWidth*s,
+      mapImgEl.naturalHeight*s
+    );
+
     const fade = g.createLinearGradient(0,0,0,H*.62);
-    fade.addColorStop(0,'rgba(27,16,41,.25)'); fade.addColorStop(1,'#1B1029');
-    g.fillStyle = fade; g.fillRect(0,0,W,H*.62); g.restore();
+    fade.addColorStop(0,'rgba(27,16,41,.25)');
+    fade.addColorStop(1,'#1B1029');
+    g.fillStyle = fade;
+    g.fillRect(0,0,W,H*.62);
+    g.restore();
   }
-  g.strokeStyle = '#A8813A'; g.lineWidth = 6; g.strokeRect(26,26,W-52,H-52);
+
+  g.strokeStyle = '#A8813A';
+  g.lineWidth = 6;
+  g.strokeRect(26,26,W-52,H-52);
+
   g.textAlign = 'center';
-  g.fillStyle = '#E9B84C'; g.font = '700 74px Cinzel, serif';
+
+  g.fillStyle = '#E9B84C';
+  g.font = '700 74px Cinzel, serif';
   g.fillText('TOEZLANDIA', W/2, 150);
-  g.fillStyle = '#B49FCB'; g.font = '300 28px Jost, sans-serif';
+
+  g.fillStyle = '#B49FCB';
+  g.font = '300 28px Jost, sans-serif';
   g.fillText('A kingdom built one step at a time', W/2, 196);
 
-  g.fillStyle = '#FFD98A'; g.font = '700 200px Cinzel, serif';
-  g.fillText(fmt(S.kp), W/2, 700);
-  g.fillStyle = '#B49FCB'; g.font = '400 32px Jost, sans-serif';
-  g.fillText('Kingdom Power', W/2, 748);
+  g.fillStyle = '#FFD98A';
+  g.font = '700 180px Cinzel, serif';
+  g.fillText(fmt(lifetime), W/2, 650);
 
-  g.fillStyle = '#F0E3C6'; g.font = '500 46px Cinzel, serif';
-  g.fillText(titleFor(Math.max(S.peak||0,S.kp)), W/2, 838);
+  g.fillStyle = '#B49FCB';
+  g.font = '400 30px Jost, sans-serif';
+  g.fillText('Lifetime Kingdom Power', W/2, 700);
+
+  g.fillStyle = '#E9B84C';
+  g.font = '500 38px Jost, sans-serif';
+  g.fillText(`Current Kingdom · ${fmt(current)} KP`, W/2, 760);
+
+  g.fillStyle = '#F0E3C6';
+  g.font = '500 46px Cinzel, serif';
+  g.fillText(
+    titleFor(Math.max(S.peak||0,S.kp)),
+    W/2,
+    835
+  );
 
   const stats = [
     ['Streak', S.streak+' days'],
-    ['Districts', DISTRICTS.filter(d=>S.b[d.id].lv>0).length+'/8'],
-    ['Kingdoms', ''+S.ascensions]
+    ['Footprints', ''+footprints],
+    ['Steps Taken', ''+steps]
   ];
+
   stats.forEach(([k,v],i)=>{
     const x = W/2 + (i-1)*250;
-    g.fillStyle = '#E9B84C'; g.font = '500 44px Jost, sans-serif'; g.fillText(v, x, 950);
-    g.fillStyle = '#8E7CA6'; g.font = '300 24px Jost, sans-serif'; g.fillText(k, x, 986);
+
+    g.fillStyle = '#E9B84C';
+    g.font = '500 44px Jost, sans-serif';
+    g.fillText(v, x, 950);
+
+    g.fillStyle = '#8E7CA6';
+    g.font = '300 24px Jost, sans-serif';
+    g.fillText(k, x, 986);
   });
-  g.fillStyle = '#6C5C82'; g.font = '300 26px Jost, sans-serif';
+
+  g.fillStyle = '#6C5C82';
+  g.font = '300 26px Jost, sans-serif';
   g.fillText('Different feet, same journey.', W/2, 1070);
 }
 $('#btnRedraw').onclick = drawCard;
@@ -1595,9 +1647,11 @@ $('#btnSaveCard').onclick = ()=>{
 };
 
 function kingdomShareText(){
-  const kp = S.kp;
+  const lifetime = lifetimeKP(S);
+  const current = S.kp;
   const title = titleFor(Math.max(S.peak||0,S.kp));
-  return `I'm building my kingdom in TOEZLANDIA 🏰\n${fmt(kp)} Kingdom Power · ${title}\n\nThink you can build a stronger kingdom?\n\n👣 Enter TOEZLANDIA: https://t.me/TOEZLANDIABot\n\n#TOEZLANDIA #TOEZ`;
+
+  return `I'm building my kingdom in TOEZLANDIA 🏰\n${fmt(lifetime)} Lifetime Kingdom Power · ${title}\n${fmt(current)} KP in my current kingdom · ${S.ascensions||0} Steps Taken\n\nThink you can build a stronger kingdom?\n\n👣 Enter TOEZLANDIA: https://t.me/TOEZLANDIABot\n\n#TOEZLANDIA #TOEZ`;
 }
 function shareUrl(){
   return 'https://toezogtoeken.xyz/toezlandia.html';
